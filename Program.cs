@@ -1,12 +1,10 @@
 ﻿using System;
+using OpenCvSharp;
 
-namespace Robot
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
-    }
+class Program {
+	static void Main() {
+		using var dst = new Mat();
+
+		Console.WriteLine(dst);
+	}
 }

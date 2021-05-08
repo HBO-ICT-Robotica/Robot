@@ -1,0 +1,37 @@
+{
+	"ClassFull": {
+		"scope": "csharp",
+		"prefix": "classFull",
+		"body": [
+			"namespace Designer.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
+			"\tpublic class ${TM_FILENAME_BASE} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Create a class with path as namespace (excluding src)",
+	},
+	
+	"InterfaceFull": {
+		"scope": "csharp",
+		"prefix": "interfaceFull",
+		"body": [
+			"namespace Designer.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
+			"\tpublic interface ${TM_FILENAME_BASE} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Create a interface with path as namespace (excluding src)",
+	},
+
+	"DelegateEvent": {
+		"scope": "csharp",
+		"prefix": "delegateEvent",
+		"body": [
+			"public delegate void $1Handler($2);",
+			"public event $1Handler $1;$0",
+		],
+		"description": "Creates an event with delegate handler",
+	}
+}
