@@ -27,11 +27,11 @@ public class Program {
 
 				window.Image = frame;
 
-				using var newFrame = frame.Resize(new Size(240, 135));
+				//using var newFrame = frame.Resize(new Size(240, 135));
 
-				DoRequest(httpClient, address, newFrame).Wait();
+				DoRequest(httpClient, address, frame).Wait();
 
-				Cv2.WaitKey(1000 / 12);
+				Cv2.WaitKey(1000 / 24);
 			}
 		} catch (Exception e) {
 			Console.WriteLine(e);
