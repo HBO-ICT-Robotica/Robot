@@ -3,7 +3,7 @@
 		"scope": "csharp",
 		"prefix": "classFull",
 		"body": [
-			"namespace Designer.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
+			"namespace Robot.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
 			"\tpublic class ${TM_FILENAME_BASE} {",
 			"\t\t$0",
 			"\t}",
@@ -16,7 +16,7 @@
 		"scope": "csharp",
 		"prefix": "interfaceFull",
 		"body": [
-			"namespace Designer.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
+			"namespace Robot.${TM_DIRECTORY/.*src[\\/\\\\](([^\\/\\\\]*)([\\/\\\\])?)|([\\/\\\\])([^\\/\\\\]*)/$2${3:+.}${5:+.}$5/g} {",
 			"\tpublic interface ${TM_FILENAME_BASE} {",
 			"\t\t$0",
 			"\t}",

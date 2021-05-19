@@ -1,68 +1,47 @@
 ﻿using System;
-using System.IO.Ports;
 using System.Threading;
+using Robot.Components;
+using Robot.Serial;
+using System.Collections.Generic;
 
 class Program {
 	public static void Main() {
 		Console.WriteLine("Program start");
 
-		var communicator = TeensyCommunicator.Instance;
+		var communicator = new TeensyCommunicator("/dev/serial0", 9600);
+
 		communicator.Open();
 
-		communicator.SetServoLight(3, true);;
-		communicator.SetServoTargetPosition(2, 300);
-		Thread.Sleep(200);
-		communicator.SetServoLight(3, false);
-		Thread.Sleep(50);
-		communicator.SetServoLight(3, true);
-		Thread.Sleep(50);
-		communicator.SetServoTargetPosition(2, 0);
+		List<Servo> servos = new List<Servo>();
+		servos.Add(new Servo(communicator, 0, 903));
+		servos.Add(new Servo(communicator, 1, 120));
+		servos.Add(new Servo(communicator, 2, 120));
+		servos.Add(new Servo(communicator, 3, 903));
 
-		//communicator.SetServoTargetPosition(2, 5);
-
-		communicator.Close();
-
-		// Console.WriteLine("Creating Serial Port");
-		// var serial = new SerialPort();
-
-		// try {
-
-		// 	serial.PortName = "/dev/serial0";
-		// 	serial.BaudRate = 9600;
-		// 	serial.Parity = Parity.None;
-		// 	serial.DataBits = 8;
-		// 	serial.StopBits = StopBits.One;
-		// 	serial.Handshake = Handshake.None;
-		// 	serial.WriteTimeout = 500;
-
-		// 	Console.WriteLine("Created Serial Port");
-
-		// 	var package = new byte[] {
-		// 	0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x8, 13, 39, 0xFF
-		// };
-
-		// 	Console.WriteLine("Opening Serial Port");
-		// 	serial.Open();
-		// 	Console.WriteLine("Opened Serial Port");
-
-		// 	Console.WriteLine("Sending package");
-		// 	serial.Write(package, 0, package.Length);
-		// 	//serial.Write("p");
-		// 	Console.WriteLine("Sent package");
-
-		// 	Console.WriteLine("Closing Serial Port");
-		// 	serial.Close();
-		// 	Console.WriteLine("Closed Serial Port");
-
-		// } catch (Exception e) {
-		// 	Console.WriteLine("Error:");
-		// 	Console.WriteLine(e.ToString());
-		// } finally {
-		// 	Console.WriteLine("Closing Serial Port");
-		// 	serial.Close();
-		// 	Console.WriteLine("Closed Serial Port");
+		// foreach (var servo in servos) {
+		// 	servo.SetSpeed(200);
 		// }
 
-		// Console.WriteLine("Program end");
+		while (true) {
+			// servos[0].SetTargetPosition(1023 - 430);
+			// servos[1].SetTargetPosition(750);
+			// servos[2].SetTargetPosition(750);
+			// servos[3].SetTargetPosition(1023 - 430);
+
+			// Thread.Sleep(2000);
+
+			// servos[0].SetTargetPosition(1023 - 120);
+			// servos[1].SetTargetPosition(120);
+			// servos[2].SetTargetPosition(120);
+			// servos[3].SetTargetPosition(1023 - 120);
+
+			// Thread.Sleep(2000);
+
+			if (Console.KeyAvailable) {
+				break;
+			}
+		}
+
+		communicator.Close();
 	}
 }
