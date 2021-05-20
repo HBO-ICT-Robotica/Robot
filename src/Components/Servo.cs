@@ -1,8 +1,10 @@
 using Robot.Serial;
-using System;
+using Robot.Spec;
 
 namespace Robot.Components {
 	public class Servo {
+		private ServoSpec servoSpec = null;
+
 		private TeensyCommunicator communicator = null;
 
 		private byte id = default;
@@ -14,7 +16,9 @@ namespace Robot.Components {
 	
 		private ushort speed = default;
 
-		public Servo(TeensyCommunicator communicator, byte id, ushort startPosition) {
+		public Servo(ServoSpec servoSpec, TeensyCommunicator communicator, byte id, ushort startPosition) {
+			this.servoSpec = servoSpec;
+
 			this.communicator = communicator;
 
 			this.id = id;
