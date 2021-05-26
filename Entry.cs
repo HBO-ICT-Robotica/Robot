@@ -1,7 +1,11 @@
-﻿using Robot.Components;
+﻿using System.Threading;
+using System;
+using Robot.Components;
 using Robot.Controllers;
 using Robot.Serial;
 using Robot.Spec;
+using Robot.Utility.Logging;
+using Robot.Utility;
 
 namespace Robot {
 	/// <summary>
@@ -9,29 +13,37 @@ namespace Robot {
 	/// </summary>
 	public class Entry {
 		public static void Main() {
+			var logger = new CompositeLogger();
+
+			ServiceLocator.Register<ILogger>(logger);
+			
 			var communicator = new TeensyCommunicator("/dev/serial0", 9600);
+			communicator.Open();
 
 			var robotSpec = new RobotSpec(
 				new LegSpec(
-					new ServoSpec(120, 750),
+					new ServoSpec(45, 175, 135),
 					new WheelSpec(
 						new MotorSpec()
-					)
+					),
+					108,
+					29
 				),
 				new GripperSpec(
-					new ServoSpec(0, 0), // TODO: Figure out these values
+					new ServoSpec(0, 0, 0), // TODO: Figure out these values
 					new LoadCellSpec()
 				),
 
-				new RobotSpec.ServoIds(
-					0, 1, // TODO: Verify these values
-					2, 3
+				new RobotSpec.ServoDatas(
+					new RobotSpec.ServoDatas.ServoData(0, true),
+					new RobotSpec.ServoDatas.ServoData(1, false),
+					new RobotSpec.ServoDatas.ServoData(2, false),
+					new RobotSpec.ServoDatas.ServoData(3, true)
 				)
 			);
 
 			var controller = new TestController(robotSpec, communicator);
 
-			// Console.WriteLine("Program start");
 
 			// var communicator = new TeensyCommunicator("/dev/serial0", 9600);
 

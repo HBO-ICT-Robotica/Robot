@@ -79,7 +79,7 @@ namespace Robot.Serial {
 			this.serialPort.Write(buffer, 0, buffer.Length);
 		}
 
-		public void SetServoTargetPosition(byte servoId, ushort position) {
+		public void SetServoTargetDegree(byte servoId, ushort position) {
 			var _position = BitConverter.GetBytes(position);
 
 			this.WriteBytes(new byte[] {

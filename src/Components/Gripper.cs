@@ -1,5 +1,6 @@
 using Robot.Serial;
 using Robot.Spec;
+using static Robot.Spec.RobotSpec.ServoDatas;
 
 namespace Robot.Components {
 	public class Gripper {
@@ -8,10 +9,10 @@ namespace Robot.Components {
 		private Servo servo = null;
 		private LoadCell loadCell = null;
 
-		public Gripper(GripperSpec gripperSpec, TeensyCommunicator teensyCommunicator, byte servoId, ushort initialPosition) {
+		public Gripper(GripperSpec gripperSpec, TeensyCommunicator teensyCommunicator, ServoData servoData) {
 			this.gripperSpec = gripperSpec;
 
-			this.servo = new Servo(this.gripperSpec.GetServoSpec(), teensyCommunicator, servoId, initialPosition);
+			this.servo = new Servo(this.gripperSpec.GetServoSpec(), teensyCommunicator, servoData);
 			this.loadCell = new LoadCell(this.gripperSpec.GetLoadCellSpec());
 		}
 	}

@@ -8,9 +8,15 @@ namespace Robot.Spec {
 		private ServoSpec servoSpec = null;
 		private WheelSpec wheelSpec = null;
 
-		public LegSpec(ServoSpec servoSpec, WheelSpec wheelSpec) {
+		private int length = default;
+		private int distanceToWheel = default;
+
+		public LegSpec(ServoSpec servoSpec, WheelSpec wheelSpec, int length, int distanceToWheel) {
 			this.servoSpec = servoSpec;
 			this.wheelSpec = wheelSpec;
+
+			this.length = length;
+			this.distanceToWheel = distanceToWheel;
 		}
 
 		public ServoSpec GetServoSpec() {
@@ -19,6 +25,14 @@ namespace Robot.Spec {
 
 		public WheelSpec GetWheelSpec() {
 			return this.wheelSpec;
+		}
+
+		public int GetLength() {
+			return this.length;
+		}
+
+		public int GetDistanceToWheel() {
+			return this.distanceToWheel;
 		}
 	}
 }

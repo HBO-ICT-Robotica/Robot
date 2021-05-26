@@ -1,30 +1,36 @@
+using System.ComponentModel.Design;
+using System;
 using Robot.Serial;
 using Robot.Spec;
+using static Robot.Spec.RobotSpec.ServoDatas;
+using Robot.Utility;
 
 namespace Robot.Components {
 	public class Servo {
-		private ServoSpec servoSpec = null;
-
-		private TeensyCommunicator communicator = null;
-
 		private byte id = default;
-		
-		private ushort targetPosition = default;
-		private ushort position = default;
+		private bool winding = default;
+
+		private int rootDegree = default;
+		private int minDegree = default;
+		private int maxDegree = default;
+
+		private int targetDegree = default;
+		private int degree = default;
 		
 		private bool ledState = default;
 	
 		private ushort speed = default;
 
-		public Servo(ServoSpec servoSpec, TeensyCommunicator communicator, byte id, ushort startPosition) {
+		public Servo(TeensyCommunicator communicator, byte id, bool winding, int rootDegree, int minDegree, int maxDegree) {
 			this.servoSpec = servoSpec;
 
 			this.communicator = communicator;
 
-			this.id = id;
+			this.id = servoData.GetId();
+			this.winding = servoData.GetWinding();
 
-			this.targetPosition = startPosition;
-			this.position = 0;
+			this.SetTargetDegree(servoSpec.GetZeroDegree());
+			this.degree = 0;
 
 			this.ledState = false;
 
@@ -39,21 +45,24 @@ namespace Robot.Components {
 			if (id != this.id)
 				return;
 				
-			this.position = position;
+			this.degree = position;
 		}
 
-		public void SetTargetPosition(ushort targetPosition) {
-			this.targetPosition = targetPosition;
+		public void SetTargetDegree(int targetPosition) {
+			if (this.winding)
+				this.targetDegree = 300 - targetPosition;
+			else
+				this.targetDegree = targetPosition;
 
-			this.FlushTargetPosition();
+			this.FlushTargetDegree();
 		}
 
-		private void FlushTargetPosition() {
-			this.communicator.SetServoTargetPosition(this.id, this.targetPosition);
+		private void FlushTargetDegree() {
+			this.communicator.SetServoTargetDegree(this.id, (ushort)this.targetDegree);
 		}
 
-		public ushort GetPosition() {
-			return this.position;
+		public int GetPosition() {
+			return this.degree;
 		}
 
 		public void SetLedState(bool enabled) {
@@ -85,7 +94,7 @@ namespace Robot.Components {
 		}
 
 		public void FlushState() {
-			this.FlushTargetPosition();
+			this.FlushTargetDegree();
 			this.FlushLedState();
 			this.FlushSpeed();
 		}

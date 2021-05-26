@@ -3,20 +3,26 @@ namespace Robot.Spec {
 	/// Defines the specification a servo
 	/// </summary>
 	public class ServoSpec {
-		private ushort maxPosition = default;
-		private ushort minPosition = default;
+		private int minDegree = default;
+		private int maxDegree = default;
+		private int zeroDegree = default;
 
-		public ServoSpec(ushort minPosition, ushort maxPosition) {
-			this.minPosition = minPosition;
-			this.maxPosition = maxPosition;
+		public ServoSpec(int minDegree, int maxDegree, int zeroDegree) {
+			this.minDegree = minDegree;
+			this.maxDegree = maxDegree;
+			this.zeroDegree = zeroDegree;
 		}
 
-		public ushort GetMinPosition() {
-			return this.minPosition;
+		public int GetMinDegree() {
+			return this.minDegree;
 		}
 
-		public ushort GetMaxPosition() {
-			return this.maxPosition;
+		public int GetMaxDegree() {
+			return this.maxDegree;
+		}
+
+		public int GetZeroDegree() {
+			return this.zeroDegree;
 		}
 	}
 }

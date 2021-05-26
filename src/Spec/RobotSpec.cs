@@ -6,13 +6,13 @@ namespace Robot.Spec {
 		private LegSpec legSpec = null;
 		private GripperSpec gripperSpec = null;
 
-		private ServoIds servoIds = null;
+		private ServoDatas servoDatas = null;
 
-		public RobotSpec(LegSpec legSpec, GripperSpec gripperSpec, ServoIds servoIds) {
+		public RobotSpec(LegSpec legSpec, GripperSpec gripperSpec, ServoDatas servoDatas) {
 			this.legSpec = legSpec;
 			this.gripperSpec = gripperSpec;
 
-			this.servoIds = servoIds;
+			this.servoDatas = servoDatas;
 		}
 
 		public LegSpec GetLegSpec() {
@@ -23,8 +23,8 @@ namespace Robot.Spec {
 			return this.gripperSpec;
 		}
 
-		public ServoIds GetServoIds() {
-			return this.servoIds;
+		public ServoDatas GetServoDatas() {
+			return this.servoDatas;
 		}
 	}
 }

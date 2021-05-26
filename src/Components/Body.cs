@@ -9,29 +9,34 @@ namespace Robot.Components {
 		private BodyPart leftBodyPart = null;
 		private BodyPart rightBodyPart = null;
 
-		public Body(RobotSpec robotSpec, TeensyCommunicator teensyCommunicator) {
-			var legSpec = robotSpec.GetLegSpec();
-			var servoIds = robotSpec.GetServoIds();
+		public Body(BodyPart frontBodyPart, BodyPart backBodyPart, BodyPart leftBodyPart, BodyPart rightBodyPart) {
+			this.frontBodyPart = frontBodyPart;
+			this.backBodyPart = backBodyPart;
+			this.leftBodyPart = leftBodyPart;
+			this.rightBodyPart = rightBodyPart;
 
-			this.frontBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-				new Leg(legSpec, teensyCommunicator, servoIds.GetFrontLeftId(), 0),
-				new Leg(legSpec, teensyCommunicator, servoIds.GetFrontRightId(), 0),
-			});
+			// var legSpec = robotSpec.GetLegSpec();
+			// var servoDatas = robotSpec.GetServoDatas();
 
-			this.backBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-				new Leg(legSpec, teensyCommunicator, servoIds.GetBackLeftId(), 0),
-				new Leg(legSpec, teensyCommunicator, servoIds.GetBackRightId(), 0),
-			});
+			// this.frontBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontLeftData()),
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontRightData()),
+			// });
 
-			this.leftBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-				new Leg(legSpec, teensyCommunicator, servoIds.GetFrontLeftId(), 0),
-				new Leg(legSpec, teensyCommunicator, servoIds.GetBackLeftId(), 0),
-			});
+			// this.backBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackLeftData()),
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackRightData()),
+			// });
 
-			this.rightBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-				new Leg(legSpec, teensyCommunicator, servoIds.GetFrontRightId(), 0),
-				new Leg(legSpec, teensyCommunicator, servoIds.GetBackRightId(), 0),
-			});
+			// this.leftBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontLeftData()),
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackLeftData()),
+			// });
+
+			// this.rightBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontRightData()),
+			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackRightData()),
+			// });
 		}
 
 		public BodyPart GetFrontBodyPart() {
@@ -48,6 +53,11 @@ namespace Robot.Components {
 
 		public BodyPart GetRightBodyPart() {
 			return this.rightBodyPart;
+		}
+
+		public void GoToRoot() {
+			this.frontBodyPart.GoToRoot();
+			this.backBodyPart.GoToRoot();
 		}
 	}
 }

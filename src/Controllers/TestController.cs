@@ -8,23 +8,32 @@ namespace Robot.Controllers {
 		public TestController(RobotSpec robotSpec, TeensyCommunicator teensyCommunicator) {
 			var body = new Body(robotSpec, teensyCommunicator);
 
-			var front = body.GetFrontBodyPart();
-			var back = body.GetFrontBodyPart();
+			// foreach (var leg in body.GetFrontBodyPart().GetLegs()) {
+			// 	leg.GetServo().SetTargetDegree(150);
+			// }
 
-			front.SetTargetHeight(front.GetMaxHeight());
-			back.SetTargetHeight(back.GetMaxHeight() * 0.7f);
+			body.GetFrontBodyPart().GetLegs()[0].GetServo().SetTargetDegree(175);
+			body.GetFrontBodyPart().GetLegs()[1].GetServo().SetTargetDegree(175);
+			body.GetBackBodyPart().GetLegs()[0].GetServo().SetTargetDegree(175);
+			body.GetBackBodyPart().GetLegs()[1].GetServo().SetTargetDegree(175);
+
+			// var front = body.GetFrontBodyPart();
+			// var back = body.GetFrontBodyPart();
+
+			// front.SetTargetHeight(front.GetMaxHeight());
+			// back.SetTargetHeight((int)(back.GetMaxHeight() * 0.7));
 
 
-			while (true) {
-				// Twerk it
-				back.SetTargetHeight(back.GetMaxHeight() * 0.6f);
+			// while (true) {
+			// 	// Twerk it
+			// 	back.SetTargetHeight((int)(back.GetMaxHeight() * 0.6));
 
-				Thread.Sleep(100);
+			// 	Thread.Sleep(100);
 
-				back.SetTargetHeight(back.GetMaxHeight() * 0.7f);
+			// 	back.SetTargetHeight((int)(back.GetMaxHeight() * 0.7));
 
-				Thread.Sleep(100);
-			}
+			// 	Thread.Sleep(100);
+			// }
 		}
 	}
 }
