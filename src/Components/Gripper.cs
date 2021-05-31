@@ -10,10 +10,10 @@ namespace Robot.Components {
 		private LoadCell loadCell = null;
 
 		public Gripper(GripperSpec gripperSpec, TeensyCommunicator teensyCommunicator, ServoData servoData) {
-			this.gripperSpec = gripperSpec;
+			// this.gripperSpec = gripperSpec;
 
-			this.servo = new Servo(this.gripperSpec.GetServoSpec(), teensyCommunicator, servoData);
-			this.loadCell = new LoadCell(this.gripperSpec.GetLoadCellSpec());
+			// this.servo = new Servo(this.gripperSpec.GetServoSpec(), teensyCommunicator, servoData);
+			// this.loadCell = new LoadCell(this.gripperSpec.GetLoadCellSpec());
 		}
 	}
 }

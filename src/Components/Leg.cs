@@ -1,16 +1,21 @@
 using System;
-using Robot.Serial;
-using Robot.Spec;
-using static Robot.Spec.RobotSpec.ServoDatas;
+using Robot.Utility;
+using Robot.Utility.Logging;
 
 namespace Robot.Components {
 	public class Leg {
 		private Servo servo = null;
 		private Wheel wheel = null;
 
-		public Leg(Servo servo, Wheel wheel) {
+		private int length = default;
+		private int distanceToWheel = default;
+
+		public Leg(Servo servo, Wheel wheel, int length, int distanceToWheel) {
 			this.servo = servo;
 			this.wheel = wheel;
+
+			this.length = length;
+			this.distanceToWheel = distanceToWheel;
 		}
 
 		public Servo GetServo() {
@@ -22,12 +27,22 @@ namespace Robot.Components {
 		}
 
 		public void SetHeight(int height) {
-			
+			var length = this.GetMaxLength();
+
+			var targetAngle = MathF.Acos((float)height/length);
+
+			var targetAngleDegrees = (int)(targetAngle * (180.0 / MathF.PI)) + 45;
+
+			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, length.ToString());
+			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, ((float)length/height).ToString());
+			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, targetAngle.ToString());
+			ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, targetAngleDegrees.ToString());
+			this.servo.SetTargetDegree(targetAngleDegrees);
 		}
 
-		public int GetLength() {
-			var aSquared = this.legSpec.GetLength() * 2;
-			var bSquared = this.legSpec.GetDistanceToWheel() * 2;
+		public int GetMaxLength() {
+			var aSquared = this.length * this.length;
+			var bSquared = this.distanceToWheel * this.distanceToWheel;
 			var cSquared = aSquared + bSquared;
 
 			var length = (int)(MathF.Sqrt(cSquared));

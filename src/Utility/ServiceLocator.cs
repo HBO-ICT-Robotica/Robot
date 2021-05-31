@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Robot.Utility
 {
@@ -24,7 +23,7 @@ namespace Robot.Utility
 		{
 			// Implementation of singleton pattern.
 			if (Instance != null)
-				Debug.LogError("ServiceLocator was already initialized");
+				throw new Exception("ServiceLocator was already initialized");
 
 			Instance = instance;
 		}
@@ -33,20 +32,17 @@ namespace Robot.Utility
 		/// Register an object on the ServiceLocator.
 		/// </summary>
 		/// <param name="obj">Object to register under.</param>
-		public static void Register(Object obj)
+		public static void Register<T>(T obj) where T : class
 		{
-			Instance.RegisterInternal(obj);
+			Instance.RegisterInternal<T>(obj);
 		}
 
-		private void RegisterInternal(Object obj)
+		private void RegisterInternal<T>(T obj) where T : class
 		{
-			Type type = obj.GetType();
+			Type type = typeof(T);
 
 			if (objects.ContainsKey(type))
-			{
-				Debug.LogError("Object was already registered");
-				return;
-			}
+				throw new Exception("Object was already registered");
 
 			objects[type] = obj;
 		}
@@ -55,20 +51,17 @@ namespace Robot.Utility
 		/// Unregister an object from the ServiceLocator.
 		/// </summary>
 		/// <param name="obj">Object to unregister under.</param>
-		public static void Unregister(Object obj)
+		public static void Unregister<T>(T obj) where T : class
 		{
-			Instance.UnregisterInternal(obj);
+			Instance.UnregisterInternal<T>(obj);
 		}
 
-		private void UnregisterInternal(Object obj)
+		private void UnregisterInternal<T>(T obj) where T : class
 		{
-			Type type = obj.GetType();
+			Type type = typeof(T);
 
 			if (!objects.ContainsKey(type))
-			{
-				Debug.LogError("Object was already unregistered");
-				return;
-			}
+				throw new Exception("Object was already unregistered");
 
 			objects[type] = null;
 		}
@@ -78,12 +71,12 @@ namespace Robot.Utility
 		/// </summary>
 		/// <typeparam name="T">Type of object to get.</typeparam>
 		/// <returns>A registered object with type T.</returns>
-		public static T Get<T>() where T : Object
+		public static T Get<T>() where T : class
 		{
 			return Instance.GetInternal<T>();
 		}
 
-		private T GetInternal<T>() where T : Object
+		private T GetInternal<T>() where T : class
 		{
 			objects.TryGetValue(typeof(T), out Object obj);
 			return obj as T;
@@ -95,12 +88,12 @@ namespace Robot.Utility
 		/// <typeparam name="T">Type of object to get.</typeparam>
 		/// <param name="obj">Reference to object to populate.</param>
 		/// <returns>True if object was found, false otherwise.</returns>
-		public static bool TryGet<T>(T obj) where T : Object
+		public static bool TryGet<T>(T obj) where T : class
 		{
 			return Instance.TryGetInternal<T>(obj);		
 		}
 
-		private bool TryGetInternal<T>(Object obj) where T : Object
+		private bool TryGetInternal<T>(Object obj) where T : class
 		{
 			return objects.TryGetValue(typeof(T), out obj);
 		}

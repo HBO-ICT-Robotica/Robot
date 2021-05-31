@@ -1,12 +1,12 @@
-using System.ComponentModel.Design;
-using System;
 using Robot.Serial;
-using Robot.Spec;
-using static Robot.Spec.RobotSpec.ServoDatas;
 using Robot.Utility;
+using Robot.Utility.Logging;
 
 namespace Robot.Components {
 	public class Servo {
+		private ILogger logger = null;
+		private TeensyCommunicator communicator = null;
+
 		private byte id = default;
 		private bool winding = default;
 
@@ -21,24 +21,27 @@ namespace Robot.Components {
 	
 		private ushort speed = default;
 
-		public Servo(TeensyCommunicator communicator, byte id, bool winding, int rootDegree, int minDegree, int maxDegree) {
-			this.servoSpec = servoSpec;
+		public Servo(byte id, bool winding, int rootDegree, int minDegree, int maxDegree) {
+			this.logger = ServiceLocator.Get<ILogger>();
+			this.communicator = ServiceLocator.Get<TeensyCommunicator>();
 
-			this.communicator = communicator;
+			this.id = id;
+			this.winding = winding;
 
-			this.id = servoData.GetId();
-			this.winding = servoData.GetWinding();
+			this.rootDegree = rootDegree;
+			this.minDegree = minDegree;
+			this.maxDegree = maxDegree;
 
-			this.SetTargetDegree(servoSpec.GetZeroDegree());
+			this.targetDegree = 0;
 			this.degree = 0;
 
 			this.ledState = false;
 
-			this.speed = 1023;
-
-			this.FlushState();
+			this.speed = 1023 / 4;
 
 			this.communicator.ServoPositionUpdated += OnServoPositionUpdated;
+			this.SetTargetDegree(rootDegree);
+			this.FlushState();
 		}
 
 		private void OnServoPositionUpdated(byte id, ushort position) {
@@ -46,6 +49,10 @@ namespace Robot.Components {
 				return;
 				
 			this.degree = position;
+		}
+
+		public int GetRootDegree() {
+			return this.rootDegree;
 		}
 
 		public void SetTargetDegree(int targetPosition) {
@@ -97,6 +104,10 @@ namespace Robot.Components {
 			this.FlushTargetDegree();
 			this.FlushLedState();
 			this.FlushSpeed();
+		}
+		
+		public void GoToRoot() {
+			this.SetTargetDegree(this.rootDegree);
 		}
 	}
 }

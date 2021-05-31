@@ -14,29 +14,6 @@ namespace Robot.Components {
 			this.backBodyPart = backBodyPart;
 			this.leftBodyPart = leftBodyPart;
 			this.rightBodyPart = rightBodyPart;
-
-			// var legSpec = robotSpec.GetLegSpec();
-			// var servoDatas = robotSpec.GetServoDatas();
-
-			// this.frontBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontLeftData()),
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontRightData()),
-			// });
-
-			// this.backBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackLeftData()),
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackRightData()),
-			// });
-
-			// this.leftBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontLeftData()),
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackLeftData()),
-			// });
-
-			// this.rightBodyPart = new BodyPart(robotSpec, teensyCommunicator, new List<Leg>() {
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetFrontRightData()),
-			// 	new Leg(legSpec, teensyCommunicator, servoDatas.GetBackRightData()),
-			// });
 		}
 
 		public BodyPart GetFrontBodyPart() {
@@ -58,6 +35,15 @@ namespace Robot.Components {
 		public void GoToRoot() {
 			this.frontBodyPart.GoToRoot();
 			this.backBodyPart.GoToRoot();
+		}
+
+		public IReadOnlyList<Leg> GetLegs() {
+			var legs = new List<Leg>();
+
+			legs.AddRange(this.GetFrontBodyPart().GetLegs());
+			legs.AddRange(this.GetBackBodyPart().GetLegs());
+
+			return legs;
 		}
 	}
 }

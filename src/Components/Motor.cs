@@ -1,11 +1,30 @@
-using Robot.Spec;
+using Robot.Utility;
+using Robot.Serial;
 
 namespace Robot.Components {
 	public class Motor {
-		private MotorSpec motorSpec = null;
+		private TeensyCommunicator communicator = null;
 
-		public Motor(MotorSpec motorSpec) {
-			this.motorSpec = motorSpec;
+		private byte id = default;
+
+		private int pwm = default;
+
+		public Motor(byte id) {
+			this.communicator = ServiceLocator.Get<TeensyCommunicator>();
+
+			this.id = id;
+
+			this.pwm = 0;
+		}
+
+		public void SetPwm(int pwm) {
+			this.pwm = pwm;
+
+			this.FlushPwm();
+		}
+
+		private void FlushPwm() {
+			this.communicator.SetMotorPwm(this.id, (byte)this.pwm);
 		}
 	}
 }

@@ -23,7 +23,7 @@ namespace Robot.Components {
 
 		public int GetMaxHeight() {
 			return this.legs.Max(leg => {
-				return leg.GetLength();
+				return leg.GetMaxLength();
 			});
 		}
 
