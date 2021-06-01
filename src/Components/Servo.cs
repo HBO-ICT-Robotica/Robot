@@ -64,11 +64,13 @@ namespace Robot.Components {
 			this.FlushTargetDegree();
 		}
 
+
+
 		private void FlushTargetDegree() {
 			this.communicator.SetServoTargetDegree(this.id, (ushort)this.targetDegree);
 		}
 
-		public int GetPosition() {
+		public int GetDegree() {
 			return this.degree;
 		}
 

@@ -7,5 +7,6 @@ namespace Robot.Components {
 		public LoadCell(LoadCellSpec loadCellSpec) {
 			this.loadCellSpec = loadCellSpec;
 		}
+
 	}
 }

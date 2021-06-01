@@ -26,5 +26,9 @@ namespace Robot.Components {
 		private void FlushPwm() {
 			this.communicator.SetMotorPwm(this.id, (byte)this.pwm);
 		}
+
+		public int GetPwm() {
+			return this.pwm;
+		}
 	}
 }
