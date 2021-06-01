@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Robot.Serial;
-using Robot.Spec;
 
 namespace Robot.Components {
 	public class Body {

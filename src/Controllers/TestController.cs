@@ -1,4 +1,3 @@
-using System.Threading;
 using Robot.Components;
 using Robot.Serial;
 using Robot.Utility;
@@ -77,89 +76,76 @@ namespace Robot.Controllers {
 			} catch {
 
 			}
-
 		}
 
+		private Robot.Components.Robot robot = null;
+
+		private VideoCapture videoCapture = null;
+		private Mat frame = null;
+
+		private float timeSinceLastTelemetryPush = float.MaxValue;
+
 		public TestController(Robot.Components.Robot robot) {
-			var body = robot.GetBody();
+			this.robot = robot;
 
-			var front = body.GetFrontBodyPart();
-			var back = body.GetBackBodyPart();
-			var left = body.GetLeftBodyPart();
-			var right = body.GetRightBodyPart();
+			this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
+			this.frame = new Mat();
 
-			body.GoToRoot();
 			Console.WriteLine("Going to root");
+			this.robot.GetBody().GoToRoot();
 
 			var communicator = ServiceLocator.Get<TeensyCommunicator>();
 
 			communicator.JoystickValueRecevied += (value) => {
-
 				var val = value - 32;
 
 				if (val >= 0) {
 					var pwm = (int)((val / 31.0f) * 255);
 
 					Console.WriteLine("Pwm: " + pwm);
-					foreach (var leg in body.GetLegs()) {
+					foreach (var leg in this.robot.GetBody().GetLegs()) {
 						var wheel = leg.GetWheel();
 						var motor = wheel.GetMotor();
-
 
 						motor.SetPwm(pwm);
 					}
 				}
 			};
+		}
 
+		public void Step(float dt) {
+			timeSinceLastTelemetryPush += dt;
 
-
-
-			// front.SetTargetHeight(100);
-			// back.SetTargetHeight(100);
-
-
-			try {
-				var videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
-
-				using var frame = new Mat();
-				//using var window = new Window("src");
-
-				//using var frame = Cv2.ImRead("sans.png", ImreadModes.Color);
-
-				while (true) {
+			if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
+				try {
 					videoCapture.Read(frame);
 
-
 					if (frame.Empty())
-						continue;
+						return;
 
-					//window.Image = frame;
-
-					//using var newFrame = frame.Resize(new Size(240, 135));
-
-					DoRequest(httpClient, address, frame, body).Wait();
-
-					Thread.Sleep(1000 / 24);
+					DoRequest(httpClient, address, frame, this.robot.GetBody()).Wait();
+				} catch (Exception e) {
+					Console.WriteLine(e);
 				}
-			} catch (Exception e) {
-				Console.WriteLine(e);
+
+				timeSinceLastTelemetryPush = 0.0f;
 			}
 
-			// front.SetTargetHeight(front.GetMaxHeight());
-			// back.SetTargetHeight(front.GetMaxHeight());
+			var joystick = this.robot.GetLeftJoystick();
 
-			// Thread.Sleep(1000);
+			var pwm = (int)(joystick.GetRelativeValue() * 255.0f);
 
-			// left.SetTargetHeight(0);
+			foreach (var leg in this.robot.GetBody().GetLegs()) {
+				var wheel = leg.GetWheel();
+				var motor = wheel.GetMotor();
 
-			// Thread.Sleep(1000);
-			// right.SetTargetHeight(0);
+				motor.SetPwm(pwm);
+			}
+		}
 
-			// Thread.Sleep(1000);
-			// front.SetTargetHeight(front.GetMaxHeight());
-
-			// Thread.Sleep(1000);
-			// back.SetTargetHeight(back.GetMaxHeight());
+		public void Dispose() {
+			this.videoCapture.Dispose();
+			this.frame.Dispose();
 		}
 	}
 }

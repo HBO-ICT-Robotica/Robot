@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Robot.Serial;
-using Robot.Spec;
 
 namespace Robot.Components {
 	public class BodyPart {
