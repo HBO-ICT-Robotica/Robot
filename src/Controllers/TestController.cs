@@ -1,7 +1,6 @@
 using System.Threading;
 using Robot.Components;
 using Robot.Serial;
-using Robot.Spec;
 using Robot.Utility;
 using System;
 using Newtonsoft.Json;
@@ -31,7 +30,6 @@ namespace Robot.Controllers {
 			public int targetDegree2 = default;
 			public int targetDegree3 = default;
 
-
 			public Package(string image, int servo0, int servo1, int servo2, int servo3, int motor0, int motor1, int motor2, int motor3, int targetDegree0, int targetDegree1, int targetDegree2, int targetDegree3) {
 				this.image = image;
 				this.servo0 = servo0;
@@ -46,7 +44,6 @@ namespace Robot.Controllers {
 				this.targetDegree1 = targetDegree1;
 				this.targetDegree2 = targetDegree2;
 				this.targetDegree3 = targetDegree3;
-			
 			}
 		}
 
@@ -77,8 +74,7 @@ namespace Robot.Controllers {
 
 			try {
 				var responseBody = await httpClient.PostAsync(address, httpContent);
-			}
-			catch {
+			} catch {
 
 			}
 
@@ -114,6 +110,7 @@ namespace Robot.Controllers {
 					}
 				}
 			};
+
 
 
 
