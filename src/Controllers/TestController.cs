@@ -16,6 +16,7 @@ namespace Robot.Controllers {
 			var right = body.GetRightBodyPart();
 
 			body.GoToRoot();
+			Console.WriteLine("Going to root");
 			
 			var communicator = ServiceLocator.Get<TeensyCommunicator>();
 
@@ -42,7 +43,10 @@ namespace Robot.Controllers {
 
 
 			while (true) {
-				Thread.Sleep(50);
+				front.SetTargetHeight(70);
+				Thread.Sleep(500);
+				front.SetTargetHeight(90);
+				Thread.Sleep(500);
 			}
 
 			// front.SetTargetHeight(front.GetMaxHeight());
