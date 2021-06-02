@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using OpenCvSharp;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Robot.Utility.Logging;
 
 namespace Robot.Controllers {
 	public class TestController : IRobotController {
@@ -27,24 +28,6 @@ namespace Robot.Controllers {
 
 			Console.WriteLine("Going to root");
 			this.robot.GetBody().GoToRoot();
-
-			var communicator = ServiceLocator.Get<TeensyCommunicator>();
-
-			communicator.JoystickValueRecevied += (value) => {
-				var val = value - 32;
-
-				if (val >= 0) {
-					var pwm = (int)((val / 31.0f) * 255);
-
-					Console.WriteLine("Pwm: " + pwm);
-					foreach (var leg in this.robot.GetBody().GetLegs()) {
-						var wheel = leg.GetWheel();
-						var motor = wheel.GetMotor();
-
-						motor.SetPwm(pwm);
-					}
-				}
-			};
 		}
 
 		public void Step(float dt) {
@@ -57,7 +40,7 @@ namespace Robot.Controllers {
 					if (frame.Empty())
 						return;
 
-					Telemetry.Telemetry.DoRequest(frame, this.robot.GetBody()).Wait();
+					//Telemetry.Telemetry.DoRequest(frame, this.robot.GetBody()).Wait();
 				} catch (Exception e) {
 					Console.WriteLine(e);
 				}
@@ -65,15 +48,68 @@ namespace Robot.Controllers {
 				timeSinceLastTelemetryPush = 0.0f;
 			}
 
-			var joystick = this.robot.GetLeftJoystick();
+			var rJoystick = this.robot.GetRightJoystick();
+			var lJoystick = this.robot.GetLeftJoystick();
 
-			var pwm = (int)(joystick.GetRelativeValue() * 255.0f);
+			var leftSpeed = 0;
+			var rightSpeed = 0;
 
-			foreach (var leg in this.robot.GetBody().GetLegs()) {
+			if (rJoystick.GetRelativeValue() < 0.1 && rJoystick.GetRelativeValue() > -0.1) {
+				
+			} else if (rJoystick.GetRelativeValue() > 0.1) 
+			{
+				leftSpeed = (int)(((rJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
+				rightSpeed = (int)(((rJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
+			} else if (rJoystick.GetRelativeValue() < -0.1) 
+			{
+				leftSpeed = (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
+				rightSpeed = (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
+			}
+
+			if (lJoystick.GetRelativeValue() > 0.1) {
+				leftSpeed += (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * 255.0);
+			} else if (lJoystick.GetRelativeValue() < - 0.1) {
+				rightSpeed += (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * 255.0);
+			}
+
+			if (leftSpeed > 255) {
+				var factor = 255 / leftSpeed;
+				leftSpeed *= factor;
+				rightSpeed *= factor;
+			}
+
+			if (leftSpeed < -255) {
+				var factor = -255 / leftSpeed;
+				leftSpeed *= factor;
+				rightSpeed *= factor;
+			}
+
+			if (rightSpeed > 255) {
+				var factor = 255 / rightSpeed;
+				rightSpeed *= factor;
+				rightSpeed *= factor;
+			}
+
+			if (rightSpeed < -255) {
+				var factor = -255 / rightSpeed;
+				rightSpeed *= factor;
+				rightSpeed *= factor;
+			}
+
+			var logger = ServiceLocator.Get<ILogger>();
+			Console.WriteLine($"Left: {leftSpeed}\tRight: {rightSpeed}");
+
+			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();
 				var motor = wheel.GetMotor();
 
-				motor.SetPwm(pwm);
+				//motor.SetPwm(leftSpeed);
+			}
+			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
+				var wheel = leg.GetWheel();
+				var motor = wheel.GetMotor();
+
+				//motor.SetPwm(rightSpeed);
 			}
 		}
 

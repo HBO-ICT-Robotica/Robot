@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Robot.Components;
+using Robot.Controllers;
 using Robot.Serial;
 using Robot.Utility;
 using Robot.Utility.Logging;
@@ -12,16 +13,19 @@ namespace Robot {
 
 		private Robot.Components.Robot robot = null;
 
+		private IRobotController robotController = null;
+
 		public Program() {
 			this.InitializeLogger(LogLevel.DEBUG);
-			//this.InitializeCommunicator("/dev/serial0", 9600);
-			this.InitializeCommunicator("COM1", 9600);
+			this.InitializeCommunicator("/dev/serial0", 9600);
 
 			this.InitializeRobot();
+
+			this.robotController = new TestController(this.robot);
 		}
 
 		public void Step(float dt) {
-			Console.WriteLine(dt);
+			this.robotController.Step(dt);
 		}
 
 		private void InitializeLogger(LogLevel logLevel) {
