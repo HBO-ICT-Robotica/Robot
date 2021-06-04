@@ -13,11 +13,12 @@ namespace Robot.Components {
 			return this.legs;
 		}
 
-		public void SetTargetHeight(int height) {
+		public void SetTargetHeight(IDistance height) {
 			foreach (var leg in legs) {
-				leg.SetHeight(height);
+				leg.SetHeight(height.getHeightInMM());
 			}
 		}
+
 
 		public int GetMaxHeight() {
 			return this.legs.Max(leg => {
