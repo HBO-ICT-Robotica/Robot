@@ -2,8 +2,8 @@ using Robot.Serial;
 
 namespace Robot.Components {
 	public class Gripper {
-		private Servo servo = null;
-		private LoadCell loadCell = null;
+		// private Servo servo = null;
+		// private LoadCell loadCell = null;
 
 		public Gripper() {
 			// this.gripperSpec = gripperSpec;

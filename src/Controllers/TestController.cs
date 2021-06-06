@@ -27,8 +27,8 @@ namespace Robot.Controllers {
 
 			this.robot.GetBody().GoToRoot();
 
-			var communicator = ServiceLocator.Get<TeensyCommunicator>();
-			communicator.RemoteTimeoutEvent += OnRemoteTimeout;
+			var hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
+			hardwareInterface.remoteTimeoutEvent += OnRemoteTimeout;
 		}
 
 		private void OnRemoteTimeout() {
@@ -131,7 +131,6 @@ namespace Robot.Controllers {
 			//Console.WriteLine($"Left: {leftSpeed}, Right: {rightSpeed}");
 
 			//var logger = ServiceLocator.Get<ILogger>();
-			Console.WriteLine($"Left: {leftSpeed}, Right: {rightSpeed}");
 
 			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();

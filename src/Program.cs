@@ -1,68 +1,70 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Robot.Components;
 using Robot.Controllers;
 using Robot.Serial;
+using Robot.Units.Angle;
 using Robot.Utility;
 using Robot.Utility.Logging;
+using Robot.VirtualWindow;
 
 namespace Robot {
 	public class Program : IDisposable {
 		private ILogger logger = null;
-		private TeensyCommunicator communicator = null;
+
+		private IHardwareInterface hardwareInterface = null;
 
 		private Robot.Components.Robot robot = null;
 
 		private IRobotController robotController = null;
 
-		public Program() {
-			this.InitializeLogger(LogLevel.DEBUG);
-			this.InitializeCommunicator("/dev/serial0", 9600);
+		private VirtualWindowHost virtualWindowHost = null;
 
+		public Program() {
+			this.logger = ServiceLocator.Get<ILogger>();
+
+			this.InitializeHardwareInterface("/dev/serial0", 9600);
+			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			this.robotController = new TestController(this.robot);
+			this.robotController = new TrackingController(this.robot);
+			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
 		public void Step(float dt) {
 			this.robotController.Step(dt);
 		}
 
-		private void InitializeLogger(LogLevel logLevel) {
-			var loggerComposite = new LoggerComposite(logLevel);
-			loggerComposite.AddLogger(new LoggerConsole());
+		private void InitializeHardwareInterface(string port, int baudRate) {
+			//this.hardwareInterface = new TeensyInterface(port, baudRate);
+			this.hardwareInterface = new VoidInterface();
+			this.hardwareInterface.Open();
 
-			this.logger = loggerComposite;
-			ServiceLocator.Register(this.logger);
+			ServiceLocator.Register<IHardwareInterface>(this.hardwareInterface);
+
+			this.logger.LogDebug("Initialized hardware interface");
 		}
 
-		private void DisposeLogger() {
-			ServiceLocator.Unregister<ILogger>(this.logger);
-			this.logger.Flush();
-		}
+		private void DisposeHardwareInterface() {
+			ServiceLocator.Unregister<IHardwareInterface>(this.hardwareInterface);
+			this.hardwareInterface.Close();
 
-		private void InitializeCommunicator(string port, int baudRate) {
-			this.communicator = new TeensyCommunicator(port, baudRate);
-			communicator.Open();
+			this.hardwareInterface = null;
 
-			ServiceLocator.Register(communicator);
-		}
-
-		private void DisposeCommunicator() {
-			ServiceLocator.Unregister<TeensyCommunicator>(this.communicator);
-			this.communicator.Close();
+			this.logger.LogDebug("Disposed hardware interface");
 		}
 
 		private void InitializeRobot() {
-			var legZeroDegree = 135;
-			var legMinDegree = 45;
-			var legMaxDegree = 175;
+			var legZeroAngle = new Degrees(135);
+			var legMinAngle = new Degrees(45);
+			var legMaxAngle = new Degrees(175);
 
 			var legLength = 108;
 			var legDistanceToWheel = 29;
 
 			var frontLeftLeg = new Leg(
-				new Servo(0, true, legZeroDegree, legMinDegree, legMaxDegree),
+				new Servo(0, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(0)
 				),
@@ -71,7 +73,7 @@ namespace Robot {
 			);
 
 			var frontRightLeg = new Leg(
-				new Servo(1, false, legZeroDegree, legMinDegree, legMaxDegree),
+				new Servo(1, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(1)
 				),
@@ -80,7 +82,7 @@ namespace Robot {
 			);
 
 			var backLeftLeg = new Leg(
-				new Servo(2, false, legZeroDegree, legMinDegree, legMaxDegree),
+				new Servo(2, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(3)
 				),
@@ -89,7 +91,7 @@ namespace Robot {
 			);
 
 			var backRightLeg = new Leg(
-				new Servo(3, true, legZeroDegree, legMinDegree, legMaxDegree),
+				new Servo(3, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(2)
 				),
@@ -107,11 +109,29 @@ namespace Robot {
 				new Joystick(0, 0, 63),
 				new Joystick(1, 0, 63)
 			);
+
+			this.logger.LogDebug("Initialized robot");
+		}
+
+		private void InitializeVirtualWindowHost() {
+			this.virtualWindowHost = new VirtualWindowHost();
+
+			ServiceLocator.Register<VirtualWindowHost>(this.virtualWindowHost);
+
+			this.logger.LogDebug($"Initialized virtual window host");
+		}
+
+		private void DisposeVirtualWindowHost() {
+			ServiceLocator.Unregister<VirtualWindowHost>(this.virtualWindowHost);
+
+			this.virtualWindowHost.Dispose();
+
+			this.virtualWindowHost = null;
 		}
 
 		public void Dispose() {
-			this.DisposeLogger();
-			this.DisposeCommunicator();
+			this.DisposeHardwareInterface();
+			this.DisposeVirtualWindowHost();
 		}
 	}
 }

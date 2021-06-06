@@ -1,13 +1,13 @@
-namespace Robot.Serial {
-	public partial class TeensyCommunicator {
-		private class RemoteTimeout : InCommand {
-			public RemoteTimeout(TeensyCommunicator communicator) : base(communicator, 0) {
-			
-			}
+namespace Robot.Serial.InCommands {
+	public class RemoteTimeout : InCommand {
+		private RemoteTimeoutHandler remoteTimeoutEvent = null;
 
-			public override void Execute(byte[] incomingBytes) {
-				this.communicator.RemoteTimeoutEvent?.Invoke();
-			}
+		public RemoteTimeout(RemoteTimeoutHandler remoteTimeoutEvent) : base(0) {
+			this.remoteTimeoutEvent = remoteTimeoutEvent;
+		}
+
+		public override void Execute(byte[] incomingBytes) {
+			this.remoteTimeoutEvent?.Invoke();
 		}
 	}
 }

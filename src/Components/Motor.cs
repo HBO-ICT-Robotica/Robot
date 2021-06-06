@@ -10,7 +10,7 @@ namespace Robot.Components {
 			NEUTRAL = 3,
 		}
 
-		private TeensyCommunicator communicator = null;
+		private IHardwareInterface hardwareInterface = null;
 
 		private byte id = default;
 
@@ -19,7 +19,7 @@ namespace Robot.Components {
 		private Mode mode = Mode.NEUTRAL;
 
 		public Motor(byte id) {
-			this.communicator = ServiceLocator.Get<TeensyCommunicator>();
+			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 
 			this.id = id;
 
@@ -37,11 +37,11 @@ namespace Robot.Components {
 		}
 
 		private void FlushPwm() {
-			this.communicator.SetMotorPwm(this.id, (byte)this.pwm);
+			this.hardwareInterface.SetMotorPwm(this.id, (byte)this.pwm);
 		}
 
 		private void FlushMode() {
-			this.communicator.SetMotorMode(this.id, (byte)this.mode);
+			this.hardwareInterface.SetMotorMode(this.id, (byte)this.mode);
 		}
 
 		public int GetPwm() {

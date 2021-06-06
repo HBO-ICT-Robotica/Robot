@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Robot.Utility.Logging {
 	public class LoggerComposite : LoggerBase, ILogger {
-		private LogLevel logLevel;
+		private LogLevel logLevel = default;
 
 		private HashSet<ILogger> loggers = null;
 

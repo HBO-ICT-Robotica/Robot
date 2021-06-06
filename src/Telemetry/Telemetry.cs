@@ -6,18 +6,18 @@ using OpenCvSharp;
 using Robot.Components;
 
 namespace Robot.Telemetry {
-    public class Telemetry {
-        private static HttpClient httpClient = new HttpClient();
+	public class Telemetry {
+		private static HttpClient httpClient = new HttpClient();
 
 		private static string address = "http://192.168.137.1:3000/api/apiPushTelemetry";
 
 		private class Package {
 			public string image = string.Empty;
-			public int[] servos = default;
+			public float[] servos = default;
 			public int[] motors = default;
-			public int[] targetDegrees = default;
+			public float[] targetDegrees = default;
 
-			public Package(string image, int[] servos, int[] motors, int[] targetDegrees) {
+			public Package(string image, float[] servos, float[] targetDegrees, int[] motors) {
 				this.image = image;
 				this.servos = servos;
 				this.motors = motors;
@@ -29,22 +29,21 @@ namespace Robot.Telemetry {
 			Cv2.ImEncode(".png", frame, out var buffer);
 			var bufferAsText = Convert.ToBase64String(buffer);
 
-			int[] servos = { 
-				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetDegree(), 
-				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetDegree(),
-				body.GetBackBodyPart().GetLegs()[0].GetServo().GetDegree(), 
-				body.GetBackBodyPart().GetLegs()[1].GetServo().GetDegree(),
+			float[] servos = {
+				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetAngle().AsDegrees(),
+				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetAngle().AsDegrees(),
+				body.GetBackBodyPart().GetLegs()[0].GetServo().GetAngle().AsDegrees(),
+				body.GetBackBodyPart().GetLegs()[1].GetServo().GetAngle().AsDegrees(),
 			};
 
-			int[] targetDegrees = { 
-				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetTargetDegree(),
-				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetTargetDegree(),
-				body.GetBackBodyPart().GetLegs()[0].GetServo().GetTargetDegree(),
-				body.GetBackBodyPart().GetLegs()[1].GetServo().GetTargetDegree(),
+			float[] targetDegrees = {
+				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetTargetAngle().AsDegrees(),
+				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetTargetAngle().AsDegrees(),
+				body.GetBackBodyPart().GetLegs()[0].GetServo().GetTargetAngle().AsDegrees(),
+				body.GetBackBodyPart().GetLegs()[1].GetServo().GetTargetAngle().AsDegrees(),
 			};
 
-
-			int[] motors = { 
+			int[] motors = {
 				body.GetFrontBodyPart().GetLegs()[0].GetWheel().GetMotor().GetPwm(),
 				body.GetFrontBodyPart().GetLegs()[1].GetWheel().GetMotor().GetPwm(),
 				body.GetBackBodyPart().GetLegs()[0].GetWheel().GetMotor().GetPwm(),
@@ -63,5 +62,5 @@ namespace Robot.Telemetry {
 
 			}
 		}
-    }
+	}
 }

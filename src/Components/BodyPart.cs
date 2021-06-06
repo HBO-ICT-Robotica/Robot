@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Robot.Units.Distance;
 
 namespace Robot.Components {
 	public class BodyPart {
@@ -15,7 +16,7 @@ namespace Robot.Components {
 
 		public void SetTargetHeight(IDistance height) {
 			foreach (var leg in legs) {
-				leg.SetHeight(height.GetDistanceInMM());
+				leg.SetHeight(height);
 			}
 		}
 

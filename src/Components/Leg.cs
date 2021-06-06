@@ -1,6 +1,6 @@
 using System;
-using Robot.Utility;
-using Robot.Utility.Logging;
+using Robot.Units.Angle;
+using Robot.Units.Distance;
 
 namespace Robot.Components {
 	public class Leg {
@@ -26,18 +26,12 @@ namespace Robot.Components {
 			return this.wheel;
 		}
 
-		public void SetHeight(int height) {
+		public void SetHeight(IDistance height) {
 			var length = this.GetMaxLength();
 
-			var targetAngle = MathF.Acos((float)height/length);
+			var targetAngle = new Radians(MathF.Acos((float)height.GetDistanceInMM()/length));
 
-			var targetAngleDegrees = (int)(targetAngle * (180.0 / MathF.PI)) + 45;
-
-			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, length.ToString());
-			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, ((float)length/height).ToString());
-			// ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, targetAngle.ToString());
-			ServiceLocator.Get<ILogger>().Log(LogLevel.DEBUG, targetAngleDegrees.ToString());
-			this.servo.SetTargetDegree(targetAngleDegrees);
+			this.servo.SetTargetAngle(targetAngle);
 		}
 
 		public int GetMaxLength() {

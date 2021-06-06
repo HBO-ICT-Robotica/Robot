@@ -1,19 +1,17 @@
-using System.Data;
-using System;
+namespace Robot.Serial.InCommands {
+	public class ReceiveJoystickPosition : InCommand {
+		private JoystickValueReceivedHandler joystickValueReceived = null;
 
-namespace Robot.Serial {
-	public partial class TeensyCommunicator {
-		private class ReceiveJoystickPosition : InCommand {
-			public ReceiveJoystickPosition(TeensyCommunicator communicator) : base(communicator, 2) {
-			
+		public ReceiveJoystickPosition(JoystickValueReceivedHandler joystickValueReceived) : base(2) {
+			this.joystickValueReceived = joystickValueReceived;
 			}
 
-			public override void Execute(byte[] incomingBytes) {
-				var id = incomingBytes[0];
-				var value = incomingBytes[1];
+		public override void Execute(byte[] incomingBytes) {
+			var id = incomingBytes[0];
+			var value = incomingBytes[1];
 
-				this.communicator.JoystickValueRecevied?.Invoke(id, value);
-			}
+			this.joystickValueReceived?.Invoke(id, value);
 		}
 	}
+
 }

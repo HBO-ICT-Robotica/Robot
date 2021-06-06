@@ -1,79 +1,77 @@
 using Robot.Serial;
+using Robot.Units.Angle;
 using Robot.Utility;
-using Robot.Utility.Logging;
 
 namespace Robot.Components {
 	public class Servo {
-		private ILogger logger = null;
-		private TeensyCommunicator communicator = null;
+		private IHardwareInterface hardwareInterface = null;
 
 		private byte id = default;
 		private bool winding = default;
 
-		private int rootDegree = default;
-		private int minDegree = default;
-		private int maxDegree = default;
+		private IAngle rootAngle = default;
+		private IAngle minAngle = default;
+		private IAngle maxAngle = default;
 
-		private int targetDegree = default;
-		private int degree = default;
-		
+		private IAngle targetAngle = default;
+		private IAngle angle = default;
+
 		private bool ledState = default;
-	
+
 		private ushort speed = default;
 
-		public Servo(byte id, bool winding, int rootDegree, int minDegree, int maxDegree) {
-			this.logger = ServiceLocator.Get<ILogger>();
-			this.communicator = ServiceLocator.Get<TeensyCommunicator>();
+		public Servo(byte id, bool winding, IAngle rootAngle, IAngle minAngle, IAngle maxAngle) {
+			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 
 			this.id = id;
 			this.winding = winding;
 
-			this.rootDegree = rootDegree;
-			this.minDegree = minDegree;
-			this.maxDegree = maxDegree;
+			this.rootAngle = rootAngle;
+			this.minAngle = minAngle;
+			this.maxAngle = maxAngle;
 
-			this.targetDegree = 0;
-			this.degree = 0;
+			this.targetAngle = new Radians(0.0f);
+			this.angle = new Radians(0.0f);
 
 			this.ledState = false;
 
 			this.speed = 1023 / 4;
 
-			this.communicator.ServoPositionUpdated += OnServoPositionUpdated;
-			this.SetTargetDegree(rootDegree);
+			this.hardwareInterface.servoPositionUpdated += OnServoPositionUpdated;
+			this.SetTargetAngle(rootAngle);
 			this.FlushState();
 		}
 
 		private void OnServoPositionUpdated(byte id, ushort position) {
 			if (id != this.id)
 				return;
-				
-			this.degree = position;
+
+			this.angle = new Degrees(position);
 		}
 
-		public int GetRootDegree() {
-			return this.rootDegree;
+		public IAngle GetRootDegree() {
+			return this.rootAngle;
 		}
 
-		public void SetTargetDegree(int targetPosition) {
+		public void SetTargetAngle(IAngle angle) {
 			if (this.winding)
-				this.targetDegree = 300 - targetPosition;
+				this.targetAngle = new Degrees(300.0f) - angle;
 			else
-				this.targetDegree = targetPosition;
+				this.targetAngle = angle;
 
-			this.FlushTargetDegree();
+			this.FlushTargetAngle();
 		}
 
-		private void FlushTargetDegree() {
-			this.communicator.SetServoTargetDegree(this.id, (ushort)this.targetDegree);
+		private void FlushTargetAngle() {
+			this.hardwareInterface.SetServoTargetDegree(this.id, (ushort)(this.targetAngle).AsDegrees());
 		}
 
-		public int GetDegree() {
-			return this.degree;
+		public IAngle GetAngle() {
+			return this.angle;
 		}
 
-		public int GetTargetDegree() {
-			return this.targetDegree;
+		public IAngle GetTargetAngle() {
+			return this.targetAngle;
 		}
 
 		public void SetLedState(bool enabled) {
@@ -87,7 +85,7 @@ namespace Robot.Components {
 		}
 
 		private void FlushLedState() {
-			this.communicator.SetServoLight(this.id, this.ledState);
+			this.hardwareInterface.SetServoLight(this.id, this.ledState);
 		}
 
 		public void SetSpeed(ushort speed) {
@@ -101,17 +99,17 @@ namespace Robot.Components {
 		}
 
 		private void FlushSpeed() {
-			this.communicator.SetServoSpeed(this.id, this.speed);
+			this.hardwareInterface.SetServoSpeed(this.id, this.speed);
 		}
 
 		public void FlushState() {
-			this.FlushTargetDegree();
+			this.FlushTargetAngle();
 			this.FlushLedState();
 			this.FlushSpeed();
 		}
-		
+
 		public void GoToRoot() {
-			this.SetTargetDegree(this.rootDegree);
+			this.SetTargetAngle(this.rootAngle);
 		}
 	}
 }
