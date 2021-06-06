@@ -15,10 +15,9 @@ namespace Robot.Components {
 
 		public void SetTargetHeight(IDistance height) {
 			foreach (var leg in legs) {
-				leg.SetHeight(height.getHeightInMM());
+				leg.SetHeight(height.GetDistanceInMM());
 			}
 		}
-
 
 		public int GetMaxHeight() {
 			return this.legs.Max(leg => {

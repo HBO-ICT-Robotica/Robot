@@ -1,14 +1,6 @@
 namespace Robot.Components {
 	public class Wheel {
-		public enum Mode {
-			BRAKE,
-			FORWARD,
-			REVERSE,
-			NEUTRAL
-		}
-
 		private Motor motor = null;
-		private Mode mode = Mode.BRAKE;
 
 		public Wheel(Motor motor) {
 			this.motor = motor;
@@ -18,12 +10,15 @@ namespace Robot.Components {
 			return this.motor;
 		}
 
-		public Mode GetMode() {
-			return this.mode;
-		}
+		public void SetSpeed(int speed) {
+			if (speed < 0) {
+				this.GetMotor().SetMode(Motor.Mode.REVERSE);
+				this.GetMotor().SetPwm(speed);
+			} else {
+				this.GetMotor().SetMode(Motor.Mode.FORWARD);
+				this.GetMotor().SetPwm(speed);
+			}
 
-		public void setMode(Mode mode) {
-			this.mode = mode;
 		}
 	}
 }

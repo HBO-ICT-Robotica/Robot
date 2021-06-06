@@ -10,9 +10,6 @@ using Robot.Utility.Logging;
 
 namespace Robot.Controllers {
 	public class TestController : IRobotController {
-
-
-
 		private Robot.Components.Robot robot = null;
 
 		private VideoCapture videoCapture = null;
@@ -20,17 +17,38 @@ namespace Robot.Controllers {
 
 		private float timeSinceLastTelemetryPush = float.MaxValue;
 
+		private bool running = true;
+
 		public TestController(Robot.Components.Robot robot) {
 			this.robot = robot;
 
 			this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
 			this.frame = new Mat();
 
-			Console.WriteLine("Going to root");
 			this.robot.GetBody().GoToRoot();
+
+			var communicator = ServiceLocator.Get<TeensyCommunicator>();
+			communicator.RemoteTimeoutEvent += OnRemoteTimeout;
+		}
+
+		private void OnRemoteTimeout() {
+			this.running = false;
+
+			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
+				var wheel = leg.GetWheel();
+				wheel.SetSpeed(0);
+			}
+
+			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
+				var wheel = leg.GetWheel();
+				wheel.SetSpeed(0);
+			}
 		}
 
 		public void Step(float dt) {
+			if (!running)
+				return;
+
 			timeSinceLastTelemetryPush += dt;
 
 			if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
@@ -48,68 +66,80 @@ namespace Robot.Controllers {
 				timeSinceLastTelemetryPush = 0.0f;
 			}
 
-			var rJoystick = this.robot.GetRightJoystick();
-			var lJoystick = this.robot.GetLeftJoystick();
+			var thrustJoystick = this.robot.GetRightJoystick();
+			var steeringJoystick = this.robot.GetLeftJoystick();
 
 			var leftSpeed = 0;
 			var rightSpeed = 0;
 
-			if (rJoystick.GetRelativeValue() < 0.1 && rJoystick.GetRelativeValue() > -0.1) {
-				
-			} else if (rJoystick.GetRelativeValue() > 0.1) 
-			{
-				leftSpeed = (int)(((rJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
-				rightSpeed = (int)(((rJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
-			} else if (rJoystick.GetRelativeValue() < -0.1) 
-			{
-				leftSpeed = (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
-				rightSpeed = (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
+			if (thrustJoystick.GetRelativeValue() < 0.1 && thrustJoystick.GetRelativeValue() > -0.1) {
+
+			} else if (thrustJoystick.GetRelativeValue() > 0.1) {
+				leftSpeed += (int)(thrustJoystick.GetRelativeValue() * 50);
+				rightSpeed += (int)(thrustJoystick.GetRelativeValue() * 50);
+			} else if (thrustJoystick.GetRelativeValue() < -0.1) {
+				leftSpeed -= (int)(thrustJoystick.GetRelativeValue() * 50);
+				rightSpeed -= (int)(thrustJoystick.GetRelativeValue() * 50);
+			} 
+
+			if (steeringJoystick.GetRelativeValue() > 0.1 || steeringJoystick.GetRelativeValue() < -0.1) {
+				leftSpeed -= (int)(steeringJoystick.GetRelativeValue() * 30);
+				rightSpeed += (int)(steeringJoystick.GetRelativeValue() * 30);
 			}
 
-			if (lJoystick.GetRelativeValue() > 0.1) {
-				leftSpeed += (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * 255.0);
-			} else if (lJoystick.GetRelativeValue() < - 0.1) {
-				rightSpeed += (int)((((rJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * 255.0);
-			}
+			// if (thrustJoystick.GetRelativeValue() < 0.1 && thrustJoystick.GetRelativeValue() > -0.1) {
+			// 	// Deadzone
+			// } else if (thrustJoystick.GetRelativeValue() > 0.1) {
+			// 	leftSpeed = (int)(((thrustJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
+			// 	rightSpeed = (int)(((thrustJoystick.GetRelativeValue() - 0.1) * (1.0 / 0.9)) * 255.0);
+			// } else if (thrustJoystick.GetRelativeValue() < -0.1) {
+			// 	leftSpeed = (int)((((thrustJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
+			// 	rightSpeed = (int)((((thrustJoystick.GetRelativeValue() * -1) - 0.1) * (1.0 / 0.9)) * -255.0);
+			// }
 
-			if (leftSpeed > 255) {
-				var factor = 255 / leftSpeed;
-				leftSpeed *= factor;
-				rightSpeed *= factor;
-			}
+			// if (steeringJoystick.GetRelativeValue() > 0.1) {
+			// 	leftSpeed += (int)((((thrustJoystick.GetRelativeValue()) - 0.1) * (1.0 / 0.9)) * 255.0);
+			// } else if (steeringJoystick.GetRelativeValue() < -0.1) {
+			// 	rightSpeed += (int)((((thrustJoystick.GetRelativeValue()) - 0.1) * (1.0 / 0.9)) * 255.0);
+			// }
 
-			if (leftSpeed < -255) {
-				var factor = -255 / leftSpeed;
-				leftSpeed *= factor;
-				rightSpeed *= factor;
-			}
+			// if (leftSpeed > 255) {
+			// 	var factor = 255 / leftSpeed;
+			// 	leftSpeed *= factor;
+			// 	rightSpeed *= factor;
+			// }
 
-			if (rightSpeed > 255) {
-				var factor = 255 / rightSpeed;
-				rightSpeed *= factor;
-				rightSpeed *= factor;
-			}
+			// if (leftSpeed < -255) {
+			// 	var factor = -255 / leftSpeed;
+			// 	leftSpeed *= factor;
+			// 	rightSpeed *= factor;
+			// }
 
-			if (rightSpeed < -255) {
-				var factor = -255 / rightSpeed;
-				rightSpeed *= factor;
-				rightSpeed *= factor;
-			}
+			// if (rightSpeed > 255) {
+			// 	var factor = 255 / rightSpeed;
+			// 	rightSpeed *= factor;
+			// 	rightSpeed *= factor;
+			// }
 
-			var logger = ServiceLocator.Get<ILogger>();
-			Console.WriteLine($"Left: {leftSpeed}\tRight: {rightSpeed}");
+			// if (rightSpeed < -255) {
+			// 	var factor = -255 / rightSpeed;
+			// 	rightSpeed *= factor;
+			// 	rightSpeed *= factor;
+			// }
+
+			//Console.WriteLine($"Left: {leftSpeed}\t Right:{rightSpeed}");
+			//Console.WriteLine($"Left: {leftSpeed}, Right: {rightSpeed}");
+
+			//var logger = ServiceLocator.Get<ILogger>();
+			Console.WriteLine($"Left: {leftSpeed}, Right: {rightSpeed}");
 
 			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();
-				var motor = wheel.GetMotor();
-
-				//motor.SetPwm(leftSpeed);
+				wheel.SetSpeed(leftSpeed);
 			}
 			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();
-				var motor = wheel.GetMotor();
-
-				//motor.SetPwm(rightSpeed);
+				wheel.SetSpeed(rightSpeed);
 			}
 		}
 

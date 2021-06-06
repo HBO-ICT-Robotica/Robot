@@ -3,8 +3,10 @@ using Robot.Serial;
 using Robot.Utility;
 using Robot.Utility.Easings;
 
-namespace Robot.Components {
-	public class Joystick {
+namespace Robot.Components
+{
+	public class Joystick
+	{
 		private TeensyCommunicator communicator = null;
 
 		private int id = default;
@@ -13,7 +15,8 @@ namespace Robot.Components {
 		private int minValue = default;
 		private int maxValue = default;
 
-		public Joystick(int id, int minValue, int maxValue) {
+		public Joystick(int id, int minValue, int maxValue)
+		{
 			this.communicator = ServiceLocator.Get<TeensyCommunicator>();
 
 			this.id = id;
@@ -25,16 +28,27 @@ namespace Robot.Components {
 			this.communicator.JoystickValueRecevied += OnJoystickValueReceived;
 		}
 
-		public int GetValue() {
+		public int GetValue()
+		{
 			return this.value;
 		}
 
-		public float GetRelativeValue() {
-			return ((this.value - this.minValue) / (this.maxValue - this.minValue) * 2.0f) - 1.0f;
+		public float GetRelativeValue()
+		{
+			return this.Map(this.value, this.minValue, this.maxValue, -1.0f, 1.0f);
 		}
 
-		private void OnJoystickValueReceived(byte value) {
+		private void OnJoystickValueReceived(byte id, byte value)
+		{
+			if (id != this.id)
+				return;
+
 			this.value = value;
+		}
+
+		private float Map(float x, float inMin, float inMax, float outMin, float outMax)
+		{
+			return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 		}
 	}
 }

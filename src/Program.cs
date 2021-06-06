@@ -104,8 +104,8 @@ namespace Robot {
 					new BodyPart(new List<Leg>() { frontLeftLeg, backLeftLeg }),
 					new BodyPart(new List<Leg>() { frontRightLeg, backRightLeg })
 				),
-				new Joystick(0, -32, 31),
-				new Joystick(1, -32, 31)
+				new Joystick(0, 0, 63),
+				new Joystick(1, 0, 63)
 			);
 		}
 

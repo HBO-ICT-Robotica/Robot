@@ -3,13 +3,18 @@ using System.IO.Ports;
 using System;
 using System.Collections.Generic;
 
-namespace Robot.Serial {
-	public partial class TeensyCommunicator {		
+namespace Robot.Serial
+{
+	public partial class TeensyCommunicator
+	{
 		public delegate void ServoPositionUpdatedHandler(byte id, ushort position);
 		public event ServoPositionUpdatedHandler ServoPositionUpdated;
 
-		public delegate void JoystickValueReceviedHandler(byte value);
+		public delegate void JoystickValueReceviedHandler(byte id, byte value);
 		public event JoystickValueReceviedHandler JoystickValueRecevied;
+
+		public delegate void RemoteTimeoutHandler();
+		public event RemoteTimeoutHandler RemoteTimeoutEvent;
 
 		private SerialPort serialPort = null;
 
@@ -19,7 +24,8 @@ namespace Robot.Serial {
 
 		private Dictionary<byte, InCommand> commands = null;
 
-		public TeensyCommunicator(string portName, int baudRate) {
+		public TeensyCommunicator(string portName, int baudRate)
+		{
 			this.serialPort = new SerialPort();
 
 			this.serialPort.PortName = portName;
@@ -39,16 +45,18 @@ namespace Robot.Serial {
 			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
 		}
 
-		public void Open() {
+		public void Open()
+		{
 			if (this.serialPort.IsOpen)
 				return;
-		
+
 			this.serialPort.Open();
 
 			this.serialPort.DataReceived += OnDataReceived;
 		}
 
-		public void Close() {
+		public void Close()
+		{
 			if (!this.serialPort.IsOpen)
 				return;
 
@@ -57,41 +65,51 @@ namespace Robot.Serial {
 			this.serialPort.Close();
 		}
 
-		private void OnDataReceived(object sender, SerialDataReceivedEventArgs e) {
-			while (this.serialPort.BytesToRead > 0) {
+		private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
+		{
+			while (this.serialPort.BytesToRead > 0)
+			{
 				var data = (byte)this.serialPort.ReadByte();
 
-				if (this.currentParsingCommand == null) {
-					if (!this.commands.TryGetValue(data, out var command)) {
+				if (this.currentParsingCommand == null)
+				{
+					if (!this.commands.TryGetValue(data, out var command))
+					{
 						throw new Exception($"Command '{data}' not implemented");
-					} else {
-
+					}
+					else
+					{
 						this.currentParsingCommand = command;
 					}
-				} else {
+				}
+				else
+				{
 					this.incomingBytes[this.nextIncomingByteIndex] = data;
 					this.nextIncomingByteIndex++;
+				}
 
-					if (this.nextIncomingByteIndex == this.currentParsingCommand.GetRequiredBytes()) {
-						this.currentParsingCommand.Execute(this.incomingBytes);
+				if (this.nextIncomingByteIndex == this.currentParsingCommand.GetRequiredBytes())
+				{
+					this.currentParsingCommand.Execute(this.incomingBytes);
 
-						this.currentParsingCommand = null;
-						this.nextIncomingByteIndex = 0;
-					}
+					this.currentParsingCommand = null;
+					this.nextIncomingByteIndex = 0;
 				}
 			}
 		}
 
-		public void WriteBytes(byte[] buffer) {
+		public void WriteBytes(byte[] buffer)
+		{
 			// foreach (var data in buffer) {
 			// 	Console.WriteLine(data);
 			// }
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
-			
+
 		}
 
-		public void SetServoTargetDegree(byte servoId, ushort position) {
+		public void SetServoTargetDegree(byte servoId, ushort position)
+		{
 			var _position = BitConverter.GetBytes(position);
 
 			this.WriteBytes(new byte[] {
@@ -102,7 +120,8 @@ namespace Robot.Serial {
 			});
 		}
 
-		public void SetServoLight(byte servoId, bool enabled) {
+		public void SetServoLight(byte servoId, bool enabled)
+		{
 			var _enabled = BitConverter.GetBytes(enabled);
 
 			this.WriteBytes(new byte[] {
@@ -111,8 +130,9 @@ namespace Robot.Serial {
 				_enabled[0]
 			});
 		}
-		
-		public void SetServoSpeed(byte servoId, ushort speed) {
+
+		public void SetServoSpeed(byte servoId, ushort speed)
+		{
 			var _speed = BitConverter.GetBytes(speed);
 
 			this.WriteBytes(new byte[] {
@@ -123,11 +143,21 @@ namespace Robot.Serial {
 			});
 		}
 
-		public void SetMotorPwm(byte motorId, byte pwm) {
+		public void SetMotorPwm(byte motorId, byte pwm)
+		{
 			this.WriteBytes(new byte[] {
 				0x04,
 				motorId,
 				pwm,
+			});
+		}
+
+		public void SetMotorMode(byte motorId, byte mode)
+		{
+			this.WriteBytes(new byte[] {
+				0x05,
+				motorId,
+				mode,
 			});
 		}
 	}
