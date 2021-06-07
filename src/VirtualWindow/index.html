@@ -9,7 +9,7 @@
 		<img id="image1"/>
 		<img id="image2"/>
 		<img id="image3"/>
-		
+
 		<script>
 			var images = [
 				document.getElementById('image0'),
@@ -17,14 +17,14 @@
 				document.getElementById('image2'),
 				document.getElementById('image3')
 			];
-			
+
 			function refresh() {
 				for (let i = 0; i < 4; i++) {
 					images[i].src = "/image" + i + (new Date().getTime());	
 				}
 			}
 
-			setInterval(refresh, 1000);
+			setInterval(refresh, 500);
 		</script>
 	</body>
 </html>
