@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Robot.Serial;
 using Robot.Utility;
@@ -42,6 +43,8 @@ namespace Robot.Components
 		{
 			if (id != this.id)
 				return;
+
+			Console.WriteLine("Received joysitck value: " + value);
 
 			this.value = value;
 		}

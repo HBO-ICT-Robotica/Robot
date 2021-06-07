@@ -2,6 +2,7 @@ using System.IO.Ports;
 using System;
 using System.Collections.Generic;
 using Robot.Serial.InCommands;
+using System.Threading;
 
 namespace Robot.Serial {
 	public partial class TeensyInterface : IHardwareInterface {
@@ -45,6 +46,9 @@ namespace Robot.Serial {
 			this.serialPort.Open();
 
 			this.serialPort.DataReceived += OnDataReceived;
+
+			var handshake = new byte[] { 0xFF };
+			this.serialPort.Write(handshake, 0, handshake.Length);
 		}
 
 		public void Close() {
@@ -59,6 +63,8 @@ namespace Robot.Serial {
 		private void OnDataReceived(object sender, SerialDataReceivedEventArgs e) {
 			while (this.serialPort.BytesToRead > 0) {
 				var data = (byte)this.serialPort.ReadByte();
+
+				Console.WriteLine(data);
 
 				if (this.currentParsingCommand == null) {
 					if (!this.commands.TryGetValue(data, out var command)) {
@@ -81,12 +87,12 @@ namespace Robot.Serial {
 		}
 
 		public void WriteBytes(byte[] buffer) {
-			// foreach (var data in buffer) {
-			// 	Console.WriteLine(data);
-			// }
+			foreach (var data in buffer) {
+				Console.WriteLine(data);
+			}
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
-
+			Thread.Sleep(50);
 		}
 
 		public void SetServoTargetDegree(byte servoId, ushort position) {
