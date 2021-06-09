@@ -157,8 +157,12 @@ namespace Robot.Controllers {
 				var wheel = leg.GetWheel();
 				wheel.SetSpeed(rightSpeed);
 			}
-		}
 
+			var gripper = robot.GetGripper();
+			gripper.Open();
+			gripper.Close(Components.Gripper.Pickupable.BALL);
+			
+		}
 		public void Dispose() {
 			// this.videoCapture.Dispose();
 			// this.frame.Dispose();

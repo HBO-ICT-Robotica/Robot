@@ -1,15 +1,45 @@
-using Robot.Serial;
+using Robot.Units.Angle;
 
 namespace Robot.Components {
 	public class Gripper {
-		// private Servo servo = null;
-		// private LoadCell loadCell = null;
+		public enum Pickupable {
+			BALL,
+			WEIGHT,
+			ORANGEBALL,
+		}
 
-		public Gripper() {
-			// this.gripperSpec = gripperSpec;
+		private Servo servo = null;
+		private bool isOpen = default;
+	
+		public Gripper(Servo servo) {
+			this.servo = servo;
+		}
 
-			// this.servo = new Servo(this.gripperSpec.GetServoSpec(), teensyCommunicator, servoData);
-			// this.loadCell = new LoadCell(this.gripperSpec.GetLoadCellSpec());
+		public void Open() {
+			this.servo.SetTargetAngle(new Degrees(135));
+			
+			isOpen = true;
+		}
+
+		public void Close(Pickupable pickupable) {
+			if (pickupable == Pickupable.BALL)
+				this.servo.SetTargetAngle(new Degrees(105));
+			else if (pickupable == Pickupable.WEIGHT)
+				this.servo.SetTargetAngle(new Degrees(90));
+			else if(pickupable == Pickupable.ORANGEBALL)
+				this.servo.SetTargetAngle(new Degrees(120));
+			else
+				throw new System.Exception("Geen voorwerp gedetecteerd");
+			
+			isOpen = false;
+		}
+
+		public bool IsOpen() {
+			return isOpen;
+		}
+
+		public bool IsClosed() {
+			return !isOpen;
 		}
 	}
 }
