@@ -4,9 +4,9 @@ namespace Robot.Serial {
 	public delegate void RemoteTimeoutHandler();
 
 	public interface IHardwareInterface {
-		event ServoPositionUpdatedHandler servoPositionUpdated { add { } remove { } }
-		event JoystickValueReceivedHandler joystickValueReceived { add { } remove { } }
-		event RemoteTimeoutHandler remoteTimeoutEvent { add { } remove { } }
+		event ServoPositionUpdatedHandler servoPositionUpdated;
+		event JoystickValueReceivedHandler joystickValueReceived;
+		event RemoteTimeoutHandler remoteTimeoutEvent;
 
 		void Open();
 		void Close();
@@ -17,5 +17,7 @@ namespace Robot.Serial {
 
 		void SetMotorPwm(byte motorId, byte pwm);
 		void SetMotorMode(byte motorId, byte mode);
+
+		void InvokeJoystickValueReceived(byte id, byte value);
 	}
 }

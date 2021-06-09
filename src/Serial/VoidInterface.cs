@@ -15,5 +15,7 @@ namespace Robot.Serial {
 
 		public void SetMotorPwm(byte motorId, byte pwm) { }
 		public void SetMotorMode(byte motorId, byte mode) { }
+
+		public void InvokeJoystickValueReceived(byte id, byte value) { }
 	}
 }

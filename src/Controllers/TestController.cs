@@ -3,6 +3,7 @@ using Robot.Utility;
 using System;
 using OpenCvSharp;
 using Robot.Units.Distance;
+using Robot.Utility.Logging;
 
 namespace Robot.Controllers {
 	public class TestController : IRobotController {
@@ -25,7 +26,7 @@ namespace Robot.Controllers {
 			this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(new Milimeter(100));
 			this.robot.GetBody().GetBackBodyPart().SetTargetHeight(new Milimeter(100));
 
-			var hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
+			var hardwareInterface = ServiceLocator.Get<TeensyInterface>();
 			hardwareInterface.remoteTimeoutEvent += OnRemoteTimeout;
 		}
 
@@ -67,23 +68,31 @@ namespace Robot.Controllers {
 			var thrustJoystick = this.robot.GetRightJoystick();
 			var steeringJoystick = this.robot.GetLeftJoystick();
 
+			//Console.WriteLine(thrustJoystick.GetRelativeValue());
+
+
 			var leftSpeed = 0;
 			var rightSpeed = 0;
 
 			if (thrustJoystick.GetRelativeValue() < 0.1 && thrustJoystick.GetRelativeValue() > -0.1) {
 
 			} else if (thrustJoystick.GetRelativeValue() > 0.1) {
-				leftSpeed += (int)(thrustJoystick.GetRelativeValue() * 50);
-				rightSpeed += (int)(thrustJoystick.GetRelativeValue() * 50);
+				leftSpeed += (int)(thrustJoystick.GetRelativeValue() * 200);
+				rightSpeed += (int)(thrustJoystick.GetRelativeValue() * 200);
 			} else if (thrustJoystick.GetRelativeValue() < -0.1) {
-				leftSpeed -= (int)(thrustJoystick.GetRelativeValue() * 50);
-				rightSpeed -= (int)(thrustJoystick.GetRelativeValue() * 50);
+				leftSpeed -= (int)(thrustJoystick.GetRelativeValue() * 200);
+				rightSpeed -= (int)(thrustJoystick.GetRelativeValue() * 200);
 			} 
 
-			if (steeringJoystick.GetRelativeValue() > 0.1 || steeringJoystick.GetRelativeValue() < -0.1) {
-				leftSpeed -= (int)(steeringJoystick.GetRelativeValue() * 30);
-				rightSpeed += (int)(steeringJoystick.GetRelativeValue() * 30);
+			if (steeringJoystick.GetRelativeValue() > 0.1) {
+				leftSpeed += 0;
+				rightSpeed += 130;
+			} else if (steeringJoystick.GetRelativeValue() < -0.1) {
+				leftSpeed += 130;
+				rightSpeed += 0;
 			}
+
+			// robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed(30);
 
 			// if (thrustJoystick.GetRelativeValue() < 0.1 && thrustJoystick.GetRelativeValue() > -0.1) {
 			// 	// Deadzone
@@ -129,11 +138,21 @@ namespace Robot.Controllers {
 			//Console.WriteLine($"Left: {leftSpeed}, Right: {rightSpeed}");
 
 			//var logger = ServiceLocator.Get<ILogger>();
+			// Console.WriteLine($"Left speed {leftSpeed}");
+			// Console.WriteLine($"Right speed {rightSpeed}");
+
+			// foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
+			// 	var wheel = leg.GetWheel();
+
+			// 	//wheel.SetSpeed(leftSpeed);
+			// }
+
 
 			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();
 				wheel.SetSpeed(leftSpeed);
 			}
+
 			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
 				var wheel = leg.GetWheel();
 				wheel.SetSpeed(rightSpeed);

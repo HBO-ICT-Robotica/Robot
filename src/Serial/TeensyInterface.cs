@@ -1,8 +1,8 @@
+using System.Threading;
 using System.IO.Ports;
 using System;
 using System.Collections.Generic;
 using Robot.Serial.InCommands;
-using System.Threading;
 
 namespace Robot.Serial {
 	public partial class TeensyInterface : IHardwareInterface {
@@ -35,8 +35,8 @@ namespace Robot.Serial {
 
 			this.commands = new Dictionary<byte, InCommand>();
 			this.commands.Add(0x00, new UpdateServoPosition(this.servoPositionUpdated));
-			this.commands.Add(0x01, new ReceiveJoystickPosition(this.joystickValueReceived));
-			this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
+			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
+			//this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
 		}
 
 		public void Open() {
@@ -64,11 +64,10 @@ namespace Robot.Serial {
 			while (this.serialPort.BytesToRead > 0) {
 				var data = (byte)this.serialPort.ReadByte();
 
-				Console.WriteLine(data);
-
 				if (this.currentParsingCommand == null) {
 					if (!this.commands.TryGetValue(data, out var command)) {
-						throw new Exception($"Command '{data}' not implemented");
+						// throw new Exception($"Command '{data}' not implemented");
+						continue;
 					} else {
 						this.currentParsingCommand = command;
 					}
@@ -87,12 +86,11 @@ namespace Robot.Serial {
 		}
 
 		public void WriteBytes(byte[] buffer) {
-			foreach (var data in buffer) {
-				Console.WriteLine(data);
-			}
+			// foreach (var data in buffer) {
+			// 	Console.WriteLine(data);
+			// }
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
-			Thread.Sleep(50);
 		}
 
 		public void SetServoTargetDegree(byte servoId, ushort position) {
@@ -141,6 +139,10 @@ namespace Robot.Serial {
 				motorId,
 				mode,
 			});
+		}
+
+		public void InvokeJoystickValueReceived(byte id, byte value) {
+			this.joystickValueReceived?.Invoke(id, value);
 		}
 	}
 }

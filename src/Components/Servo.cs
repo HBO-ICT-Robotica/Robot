@@ -4,7 +4,7 @@ using Robot.Utility;
 
 namespace Robot.Components {
 	public class Servo {
-		private IHardwareInterface hardwareInterface = null;
+		private TeensyInterface hardwareInterface = null;
 
 		private byte id = default;
 		private bool winding = default;
@@ -21,7 +21,7 @@ namespace Robot.Components {
 		private ushort speed = default;
 
 		public Servo(byte id, bool winding, IAngle rootAngle, IAngle minAngle, IAngle maxAngle) {
-			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
+			this.hardwareInterface = ServiceLocator.Get<TeensyInterface>();
 
 			this.id = id;
 			this.winding = winding;
@@ -38,8 +38,8 @@ namespace Robot.Components {
 			this.speed = 1023 / 4;
 
 			this.hardwareInterface.servoPositionUpdated += OnServoPositionUpdated;
-			this.SetTargetAngle(rootAngle);
-			this.FlushState();
+			//this.SetTargetAngle(rootAngle);
+			//this.FlushState();
 		}
 
 		private void OnServoPositionUpdated(byte id, ushort position) {
