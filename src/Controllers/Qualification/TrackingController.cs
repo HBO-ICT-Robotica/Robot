@@ -10,15 +10,10 @@ namespace Robot.Controllers {
 		private VideoCapture videoCapture = null;
 		private Mat frame = null;
 
-		//private Mat testFrame = null;
-
-		private Scalar lowerRange = new Scalar(90, 160, 80);
+		private Scalar lowerRange = new Scalar(90, 160, 50);
 		private Scalar upperRange = new Scalar(125, 255, 255);
 
 		private VirtualWindow.VirtualWindow virtualWindow = null;
-		//private VirtualWindow.VirtualWindow testWindow = null;
-
-		private Rect targetRect = Rect.Empty;
 
 		public TrackingController(Robot.Components.Robot robot) {
 			this.robot = robot;
@@ -28,10 +23,7 @@ namespace Robot.Controllers {
 			this.robot.GetBody().GoToRoot();
 
 			this.virtualWindow = new VirtualWindow.VirtualWindow(this.frame);
-			//this.testWindow = new VirtualWindow.VirtualWindow(this.testFrame);
-			
 			ServiceLocator.Get<VirtualWindowHost>().AddVirtualWindow(this.virtualWindow);
-			//ServiceLocator.Get<VirtualWindowHost>().AddVirtualWindow(this.testWindow);
 		}
 
 		private void ResizeFrame() {
@@ -50,6 +42,7 @@ namespace Robot.Controllers {
 		private Mat MaskedFrame() {
 			var maskedFrame = new Mat();
 			Cv2.BitwiseAnd(frame, frame, maskedFrame, MakeMask());
+
 			return maskedFrame;
 		}
 
@@ -71,41 +64,51 @@ namespace Robot.Controllers {
 			return contours;
 		}
 
-		private void CalculateSquareRect(Mat[] contours) {
-			for (int i = 0; i < contours.Length; i++) {
-				Mat approx = new Mat();
-				var epsilon = 0.1 * Cv2.ArcLength(contours[i], true);
+		private Rect CalculateSquareRect(Mat[] contours) {
+			if (contours.Length <= 1)
+				return Rect.Empty;
 
-				Cv2.ApproxPolyDP(contours[i], approx, epsilon, true);
-				if (approx.Total() == 4) {
-					Rect approxRect = Cv2.BoundingRect(approx);
-					float ar = approxRect.Width / (float)approxRect.Height;
+			Array.Sort(contours, (x, y) => y.ContourArea().CompareTo(x.ContourArea()));
 
-					if (ar > 0.3 && ar < 0.45) {
-						targetRect = approxRect;
-					}
-				}
-			}
+			Mat biggestContour = contours[1];
+
+			      Mat approx = new Mat();
+      var epsilon = 0.1f * biggestContour.ArcLength(true);
+
+      Cv2.ApproxPolyDP(biggestContour, approx, epsilon, true);
+
+      Rect approxRect = Cv2.BoundingRect(approx);
+      float ar = approxRect.Width / (float)approxRect.Height;
+
+      return approxRect;
 		}
 
-
-
-		private void CalculateLocation() {
-			CalculateSquareRect(FindContours());
-
+		private float CalculateLocation() {
+			Rect targetRect = CalculateSquareRect(FindContours());
 			Size frameSize = frame.Size();
 
 			var middleX = (targetRect.Width / 2) + targetRect.X;
-      var middleY = (targetRect.Height / 2) + targetRect.Y;
+			return Map(middleX, 0, frameSize.Width, -1, 1);
+		}
 
-			var windowMiddleX = frameSize.Width / 2;
-			Console.WriteLine($"X-as: {middleX}, Y-as: {middleY}");
+
+		private float Map(float from, float fromMin, float fromMax, float toMin, float toMax) {
+			var fromAbs = from - fromMin;
+			var fromMaxAbs = fromMax - fromMin;
+
+			var normal = fromAbs / fromMaxAbs;
+
+			var toMaxAbs = toMax - toMin;
+			var toAbs = toMaxAbs * normal;
+
+			var to = toAbs + toMin;
+
+			return to;
 		}
 
 		public void Step(float dt) {
 			this.videoCapture.Read(this.frame);
-			//this.testFrame = MaskedFrame();
-			CalculateLocation();
+			Console.WriteLine(CalculateLocation());
 		}
 
 		public void Dispose() {
