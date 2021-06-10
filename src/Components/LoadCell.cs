@@ -3,6 +3,5 @@ namespace Robot.Components {
 		public LoadCell() {
 			
 		}
-
 	}
 }
