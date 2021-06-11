@@ -10,6 +10,8 @@ namespace Robot.Controllers {
 		private VideoCapture videoCapture = null;
 		private Mat frame = null;
 
+		private Mat resizedFrame = null;
+
 		private Scalar lowerRange = new Scalar(90, 160, 50);
 		private Scalar upperRange = new Scalar(125, 255, 255);
 
@@ -27,13 +29,21 @@ namespace Robot.Controllers {
 		}
 
 		private void ResizeFrame() {
+			this.videoCapture.Read(this.frame);
+			Cv2.Resize(frame, frame, new Size(640, 480));
 
+			MakeRegionOfInterest();
+		}
+
+		private void MakeRegionOfInterest() {
+			Rect regionRect = new Rect(0, frame.Size().Height / 2, frame.Size().Width, frame.Size().Height / 2);
+			resizedFrame = new Mat(frame, regionRect);
 		}
 
 		private Mat MakeMask() {
 			var hsvFrame = new Mat();
 
-			Cv2.CvtColor(frame, hsvFrame, ColorConversionCodes.BGR2HSV);
+			Cv2.CvtColor(resizedFrame, hsvFrame, ColorConversionCodes.BGR2HSV);
 			Cv2.InRange(hsvFrame, lowerRange, upperRange, hsvFrame);
 
 			return hsvFrame;
@@ -41,7 +51,7 @@ namespace Robot.Controllers {
 
 		private Mat MaskedFrame() {
 			var maskedFrame = new Mat();
-			Cv2.BitwiseAnd(frame, frame, maskedFrame, MakeMask());
+			Cv2.BitwiseAnd(resizedFrame, resizedFrame, maskedFrame, MakeMask());
 
 			return maskedFrame;
 		}
@@ -72,23 +82,30 @@ namespace Robot.Controllers {
 
 			Mat biggestContour = contours[1];
 
-			      Mat approx = new Mat();
-      var epsilon = 0.1f * biggestContour.ArcLength(true);
+			Mat approx = new Mat();
+			var epsilon = 0.1f * biggestContour.ArcLength(true);
 
-      Cv2.ApproxPolyDP(biggestContour, approx, epsilon, true);
+			Cv2.ApproxPolyDP(biggestContour, approx, epsilon, true);
 
-      Rect approxRect = Cv2.BoundingRect(approx);
-      float ar = approxRect.Width / (float)approxRect.Height;
+			Rect approxRect = Cv2.BoundingRect(approx);
+			float ar = approxRect.Width / (float)approxRect.Height;
 
-      return approxRect;
+			Cv2.Rectangle(frame, approxRect, Scalar.BurlyWood, 2);
+
+			return approxRect;
 		}
 
-		private float CalculateLocation() {
+		private Tuple<float, bool> CalculateLocation() {
 			Rect targetRect = CalculateSquareRect(FindContours());
+
+			if (targetRect == Rect.Empty)
+				return new Tuple<float, bool>(0.0f, false);
+
 			Size frameSize = frame.Size();
 
 			var middleX = (targetRect.Width / 2) + targetRect.X;
-			return Map(middleX, 0, frameSize.Width, -1, 1);
+
+			return new Tuple<float, bool>(Map(middleX, 0, frameSize.Width, -1, 1), true);
 		}
 
 
@@ -107,7 +124,7 @@ namespace Robot.Controllers {
 		}
 
 		public void Step(float dt) {
-			this.videoCapture.Read(this.frame);
+			ResizeFrame();
 			Console.WriteLine(CalculateLocation());
 		}
 
