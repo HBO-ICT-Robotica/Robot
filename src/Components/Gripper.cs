@@ -5,14 +5,16 @@ namespace Robot.Components {
 		public enum Pickupable {
 			BALL,
 			WEIGHT,
-			ORANGEBALL,
+			
 		}
 
 		private Servo servo = null;
 		private bool isOpen = default;
-	
-		public Gripper(Servo servo) {
+		private LoadCell loadCell = null;
+
+		public Gripper(Servo servo, LoadCell loadCell) {
 			this.servo = servo;
+			this.loadCell = loadCell;
 		}
 
 		public void Open() {
@@ -26,11 +28,8 @@ namespace Robot.Components {
 				this.servo.SetTargetAngle(new Degrees(105));
 			else if (pickupable == Pickupable.WEIGHT)
 				this.servo.SetTargetAngle(new Degrees(90));
-			else if(pickupable == Pickupable.ORANGEBALL)
-				this.servo.SetTargetAngle(new Degrees(120));
-			else
-				throw new System.Exception("Geen voorwerp gedetecteerd");
 			
+						
 			isOpen = false;
 		}
 
@@ -40,6 +39,10 @@ namespace Robot.Components {
 
 		public bool IsClosed() {
 			return !isOpen;
+		}
+
+		public LoadCell GetLoadCell() {
+			return this.loadCell;
 		}
 	}
 }

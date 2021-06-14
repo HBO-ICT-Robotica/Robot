@@ -10,8 +10,8 @@ namespace Robot.Controllers {
 	public class TestController : IRobotController {
 		private Robot.Components.Robot robot = null;
 
-		// private VideoCapture videoCapture = null;
-		// private Mat frame = null;
+		private VideoCapture videoCapture = null;
+		private Mat frame = null;
 
 		private float timeSinceLastTelemetryPush = float.MaxValue;
 
@@ -22,8 +22,8 @@ namespace Robot.Controllers {
 		public TestController(Robot.Components.Robot robot) {
 			this.robot = robot;
 
-			// this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
-			// this.frame = new Mat();
+			this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
+			this.frame = new Mat();
 
 			//this.robot.GetBody().GoToRoot();
 			this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(new Milimeter(100));
@@ -33,7 +33,6 @@ namespace Robot.Controllers {
 			hardwareInterface.remoteTimeoutEvent += OnRemoteTimeout;
 
 			this.steering = new JoystickSteering(this.robot.GetLeftJoystick(), this.robot.GetRightJoystick(), 255);
-
 		}
 
 		private void OnRemoteTimeout() {
@@ -54,22 +53,22 @@ namespace Robot.Controllers {
 			if (!running)
 				return;
 
-			// timeSinceLastTelemetryPush += dt;
+			timeSinceLastTelemetryPush += dt;
 
-			// if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
-			// 	try {
-			// 		videoCapture.Read(frame);
+			if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
+				try {
+					videoCapture.Read(frame);
 
-			// 		if (frame.Empty())
-			// 			return;
+					if (frame.Empty())
+						return;
 
-			// 		//Telemetry.Telemetry.DoRequest(frame, this.robot.GetBody()).Wait();
-			// 	} catch (Exception e) {
-			// 		Console.WriteLine(e);
-			// 	}
+					Telemetry.Telemetry.DoRequest(frame, this.robot).Wait();
+				} catch (Exception e) {
+					Console.WriteLine(e);
+				}
 
-			// 	timeSinceLastTelemetryPush = 0.0f;
-			// }
+				timeSinceLastTelemetryPush = 0.0f;
+			}
 
 			var thrustJoystick = this.robot.GetRightJoystick();
 			var steeringJoystick = this.robot.GetLeftJoystick();
@@ -92,8 +91,8 @@ namespace Robot.Controllers {
 			
 		}
 		public void Dispose() {
-			// this.videoCapture.Dispose();
-			// this.frame.Dispose();
+			this.videoCapture.Dispose();
+			this.frame.Dispose();
 		}
 	}
 }
