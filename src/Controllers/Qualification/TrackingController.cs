@@ -95,7 +95,7 @@ namespace Robot.Controllers {
 			return approxRect;
 		}
 
-		private Tuple<float, bool> CalculateLocation() {
+		public Tuple<float, bool> CalculateLocation() {
 			Rect targetRect = CalculateSquareRect(FindContours());
 
 			if (targetRect == Rect.Empty)
@@ -125,7 +125,27 @@ namespace Robot.Controllers {
 
 		public void Step(float dt) {
 			ResizeFrame();
-			Console.WriteLine(CalculateLocation());
+			Tuple<float, bool> objectLocation = CalculateLocation();
+
+			if (!objectLocation.Item2)
+				return;
+
+			if (objectLocation.Item1 > 0.01f || objectLocation.Item1 < -0.01f)
+				Steer(objectLocation.Item1);
+
+		}
+
+
+		private void Steer(float objectLocation) {
+			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
+				var wheel = leg.GetWheel();
+				wheel.SetSpeed((int)(objectLocation * 10));
+			}
+
+			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
+				var wheel = leg.GetWheel();
+				wheel.SetSpeed((int)objectLocation * -10);
+			}
 		}
 
 		public void Dispose() {
