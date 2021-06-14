@@ -79,7 +79,7 @@ sftp.connect({
 		};
 
 		var ssh = new SSH2Promise({
-			host: '192.168.137.122',
+			host: '192.168.137.111',
 			username: 'pi',
 			password: 'raspberry',
 			port: 22,

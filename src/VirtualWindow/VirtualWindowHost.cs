@@ -12,7 +12,7 @@ namespace Robot.VirtualWindow {
 		private string pageBody = string.Empty;
 
 		private HttpListener listener;
-		private string url = "http://localhost:2020/";
+		private string url = "http://192.168.137.111:2020/";
 
 		private CancellationTokenSource cancellationTokenSource = default;
 
@@ -62,6 +62,8 @@ namespace Robot.VirtualWindow {
 					Cv2.ImEncode(".png", image, out var imageData);
 
 					await resp.OutputStream.WriteAsync(imageData, 0, imageData.Length);
+
+					resp.Close(responseEntity, false);
 				} else {
 					byte[] data = Encoding.UTF8.GetBytes(pageBody);
 
