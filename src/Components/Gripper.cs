@@ -5,7 +5,7 @@ namespace Robot.Components {
 		public enum Pickupable {
 			BALL,
 			WEIGHT,
-			ORANGEBALL,
+			
 		}
 
 		private Servo servo = null;
@@ -26,11 +26,8 @@ namespace Robot.Components {
 				this.servo.SetTargetAngle(new Degrees(105));
 			else if (pickupable == Pickupable.WEIGHT)
 				this.servo.SetTargetAngle(new Degrees(90));
-			else if(pickupable == Pickupable.ORANGEBALL)
-				this.servo.SetTargetAngle(new Degrees(120));
-			else
-				throw new System.Exception("Geen voorwerp gedetecteerd");
 			
+						
 			isOpen = false;
 		}
 
