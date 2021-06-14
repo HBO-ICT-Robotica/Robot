@@ -1,3 +1,4 @@
+using System.Threading;
 using System.IO.Ports;
 using System;
 using System.Collections.Generic;
@@ -34,8 +35,8 @@ namespace Robot.Serial {
 
 			this.commands = new Dictionary<byte, InCommand>();
 			this.commands.Add(0x00, new UpdateServoPosition(this.servoPositionUpdated));
-			this.commands.Add(0x01, new ReceiveJoystickPosition(this.joystickValueReceived));
-			this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
+			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
+			//this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
 		}
 
 		public void Open() {
@@ -45,6 +46,9 @@ namespace Robot.Serial {
 			this.serialPort.Open();
 
 			this.serialPort.DataReceived += OnDataReceived;
+
+			var handshake = new byte[] { 0xFF };
+			this.serialPort.Write(handshake, 0, handshake.Length);
 		}
 
 		public void Close() {
@@ -62,7 +66,8 @@ namespace Robot.Serial {
 
 				if (this.currentParsingCommand == null) {
 					if (!this.commands.TryGetValue(data, out var command)) {
-						throw new Exception($"Command '{data}' not implemented");
+						// throw new Exception($"Command '{data}' not implemented");
+						continue;
 					} else {
 						this.currentParsingCommand = command;
 					}
@@ -86,7 +91,6 @@ namespace Robot.Serial {
 			// }
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
-
 		}
 
 		public void SetServoTargetDegree(byte servoId, ushort position) {
@@ -135,6 +139,10 @@ namespace Robot.Serial {
 				motorId,
 				mode,
 			});
+		}
+
+		public void InvokeJoystickValueReceived(byte id, byte value) {
+			this.joystickValueReceived?.Invoke(id, value);
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Robot.Serial;
 using Robot.Utility;
@@ -7,7 +8,7 @@ namespace Robot.Components
 {
 	public class Joystick
 	{
-		private IHardwareInterface hardwareInterface = null;
+		private TeensyInterface hardwareInterface = null;
 
 		private int id = default;
 
@@ -17,7 +18,7 @@ namespace Robot.Components
 
 		public Joystick(int id, int minValue, int maxValue)
 		{
-			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
+			this.hardwareInterface = ServiceLocator.Get<TeensyInterface>();
 
 			this.id = id;
 

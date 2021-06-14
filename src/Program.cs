@@ -13,7 +13,7 @@ namespace Robot {
 	public class Program : IDisposable {
 		private ILogger logger = null;
 
-		private IHardwareInterface hardwareInterface = null;
+		private TeensyInterface hardwareInterface = null;
 
 		private Robot.Components.Robot robot = null;
 
@@ -28,7 +28,7 @@ namespace Robot {
 			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			this.robotController = new TrackingController(this.robot);
+			this.robotController = new TestController(this.robot);
 			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
@@ -37,17 +37,17 @@ namespace Robot {
 		}
 
 		private void InitializeHardwareInterface(string port, int baudRate) {
-			//this.hardwareInterface = new TeensyInterface(port, baudRate);
-			this.hardwareInterface = new VoidInterface();
+			this.hardwareInterface = new TeensyInterface(port, baudRate);
+			//this.hardwareInterface = new VoidInterface();
 			this.hardwareInterface.Open();
 
-			ServiceLocator.Register<IHardwareInterface>(this.hardwareInterface);
+			ServiceLocator.Register<TeensyInterface>(this.hardwareInterface);
 
 			this.logger.LogDebug("Initialized hardware interface");
 		}
 
 		private void DisposeHardwareInterface() {
-			ServiceLocator.Unregister<IHardwareInterface>(this.hardwareInterface);
+			ServiceLocator.Unregister<TeensyInterface>(this.hardwareInterface);
 			this.hardwareInterface.Close();
 
 			this.hardwareInterface = null;
@@ -66,7 +66,7 @@ namespace Robot {
 			var frontLeftLeg = new Leg(
 				new Servo(0, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(0)
+					new Motor(3)
 				),
 				legLength,
 				legDistanceToWheel
@@ -75,7 +75,7 @@ namespace Robot {
 			var frontRightLeg = new Leg(
 				new Servo(1, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(1)
+					new Motor(0)
 				),
 				legLength,
 				legDistanceToWheel
@@ -84,7 +84,7 @@ namespace Robot {
 			var backLeftLeg = new Leg(
 				new Servo(2, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(3)
+					new Motor(2)
 				),
 				legLength,
 				legDistanceToWheel
@@ -93,7 +93,7 @@ namespace Robot {
 			var backRightLeg = new Leg(
 				new Servo(3, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(2)
+					new Motor(1)
 				),
 				legLength,
 				legDistanceToWheel
@@ -107,7 +107,10 @@ namespace Robot {
 					new BodyPart(new List<Leg>() { frontRightLeg, backRightLeg })
 				),
 				new Joystick(0, 0, 63),
-				new Joystick(1, 0, 63)
+				new Joystick(1, 0, 63),
+				new Gripper(
+					new Servo(5, false, new Degrees(135), new Degrees(90), new Degrees(135))
+				)
 			);
 
 			this.logger.LogDebug("Initialized robot");
