@@ -36,7 +36,7 @@ namespace Robot.Controllers {
 		}
 
 		private void MakeRegionOfInterest() {
-			Rect regionRect = new Rect(0, frame.Size().Height / 2, frame.Size().Width, frame.Size().Height / 2);
+			Rect regionRect = new Rect(0, 0, frame.Size().Width, frame.Size().Height / 2);
 			resizedFrame = new Mat(frame, regionRect);
 		}
 
