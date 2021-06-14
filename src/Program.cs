@@ -109,7 +109,7 @@ namespace Robot {
 				new Joystick(0, 0, 63),
 				new Joystick(1, 0, 63),
 				new Gripper(
-					new Servo(5, false, new Degrees(135), new Degrees(90), new Degrees(135))
+					new Servo(5, false, new Degrees(135), new Degrees(90), new Degrees(135)), new LoadCell(5, 21)
 				)
 			);
 

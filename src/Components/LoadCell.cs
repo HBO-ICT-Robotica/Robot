@@ -1,6 +1,8 @@
+using System.Device.Gpio;
+
 namespace Robot.Components {
 	public class LoadCell {
-		public LoadCell() {
+		public LoadCell(int clockPinNumber, int dataPinNumber) {
 			this.clockPinNumber = clockPinNumber;
             this.dataPinNumber = dataPinNumber;
 
@@ -9,13 +11,13 @@ namespace Robot.Components {
 
 		private int clockPinNumber;
         private int dataPinNumber;
-        private GpioPin clockPin;
-        private GpioPin dataPin;
 
-        /// <summary>
-        /// Used to signal that the device is properly initialized and ready to use
-        /// </summary>
-        private bool available = false;
+		private GpioController gpio;
+
+		/// <summary>
+		/// Used to signal that the device is properly initialized and ready to use
+		/// </summary>
+		private bool available = false;
 
         /// <summary>
         /// Initialize the load sensing device.
@@ -25,57 +27,23 @@ namespace Robot.Components {
         /// </returns>
         public bool Begin()
         {
-            /*
-                * Acquire the GPIO controller
-                * MSDN GPIO Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.gpio.aspx
-                * 
-                * Get the default GpioController
-                */
-            GpioController gpio = GpioController.GetDefault();
+            this.gpio = new GpioController();
 
-            /*
-                * Test to see if the GPIO controller is available.
-                *
-                * If the GPIO controller is not available, this is
-                * a good indicator the app has been deployed to a
-                * computing environment that is not capable of
-                * controlling the weather shield. Therefore we
-                * will disable the weather shield functionality to
-                * handle the failure case gracefully. This allows
-                * the invoking application to remain deployable
-                * across the Universal Windows Platform.
-                */
             if (null == gpio)
             {
                 available = false;
                 return false;
             }
 
-            /*
-                * Initialize the clock pin and set to "Low"
-                *
-                * Instantiate the clock pin object
-                * Write the GPIO pin value of low on the pin
-                * Set the GPIO pin drive mode to output
-                */
-            clockPin = gpio.OpenPin(clockPinNumber, GpioSharingMode.Exclusive);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.SetDriveMode(GpioPinDriveMode.Output);
-
-            /*
-                * Initialize the data pin and set to "Low"
-                * 
-                * Instantiate the data pin object
-                * Set the GPIO pin drive mode to input for reading
-                */
-            dataPin = gpio.OpenPin(dataPinNumber, GpioSharingMode.Exclusive);
-            dataPin.SetDriveMode(GpioPinDriveMode.Input);
+            gpio.OpenPin(clockPinNumber, PinMode.Output);
+            gpio.Write(clockPinNumber, false);
+            gpio.OpenPin(dataPinNumber, PinMode.Input);
 
             available = true;
             return true;
         }
 
-        public getWeight() {
+        public float getWeight() {
 			if (!available) { return 0.0f; }
 			
 			return ReadData();
@@ -92,7 +60,7 @@ namespace Robot.Components {
             byte[] data = new byte[4];
 
             // Wait for chip to become ready
-            for (; GpioPinValue.Low != dataPin.Read() ;);
+            for (; false != this.gpio.Read(dataPinNumber) ;);
 
             // Clock in data
             data[1] = ShiftInByte();
@@ -100,8 +68,8 @@ namespace Robot.Components {
             data[3] = ShiftInByte();
 
             // Clock in gain of 128 for next reading
-            clockPin.Write(GpioPinValue.High);
-            clockPin.Write(GpioPinValue.Low);
+			gpio.Write(clockPinNumber, true);
+			gpio.Write(clockPinNumber, false);
 
             // Replicate the most significant bit to pad out a 32-bit signed integer
             if (0x80 == (data[1] & 0x80))
@@ -130,30 +98,30 @@ namespace Robot.Components {
 
             // Convert "GpioPinValue.High" and "GpioPinValue.Low" to 1 and 0, respectively.
             // NOTE: Loop is unrolled for performance
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 7);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 6);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 5);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 4);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 3);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 2);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)((byte)(dataPin.Read()) << 1);
-            clockPin.Write(GpioPinValue.Low);
-            clockPin.Write(GpioPinValue.High);
-            value |= (byte)dataPin.Read();
-            clockPin.Write(GpioPinValue.Low);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 7);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 6);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 5);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 4);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 3);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 2);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 1);
+            gpio.Write(clockPinNumber, false);
+            gpio.Write(clockPinNumber, true);
+            value |= (byte)this.gpio.Read(dataPinNumber);
+            gpio.Write(clockPinNumber, false);
 
             return value;
         }

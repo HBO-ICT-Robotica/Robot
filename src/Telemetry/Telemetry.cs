@@ -25,7 +25,9 @@ namespace Robot.Telemetry {
 			}
 		}
 
-		public static async Task DoRequest(Mat frame, Body body) {
+		public static async Task DoRequest(Mat frame, Robot.Components.Robot robot) {
+			Body body = robot.GetBody();
+
 			Cv2.ImEncode(".png", frame, out var buffer);
 			var bufferAsText = Convert.ToBase64String(buffer);
 
@@ -49,6 +51,8 @@ namespace Robot.Telemetry {
 				body.GetBackBodyPart().GetLegs()[0].GetWheel().GetMotor().GetPwm(),
 				body.GetBackBodyPart().GetLegs()[1].GetWheel().GetMotor().GetPwm(),
 			};
+
+			float weight = robot.GetGripper().GetLoadCell().getWeight();
 
 			var package = new Package(bufferAsText, servos, targetDegrees, motors);
 

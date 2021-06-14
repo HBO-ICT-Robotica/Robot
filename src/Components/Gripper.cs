@@ -10,9 +10,11 @@ namespace Robot.Components {
 
 		private Servo servo = null;
 		private bool isOpen = default;
-	
-		public Gripper(Servo servo) {
+		private LoadCell loadCell = null;
+
+		public Gripper(Servo servo, LoadCell loadCell) {
 			this.servo = servo;
+			this.loadCell = loadCell;
 		}
 
 		public void Open() {
@@ -37,6 +39,10 @@ namespace Robot.Components {
 
 		public bool IsClosed() {
 			return !isOpen;
+		}
+
+		public LoadCell GetLoadCell() {
+			return this.loadCell;
 		}
 	}
 }
