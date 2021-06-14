@@ -86,9 +86,9 @@ namespace Robot.Serial {
 		}
 
 		public void WriteBytes(byte[] buffer) {
-			// foreach (var data in buffer) {
-			// 	Console.WriteLine(data);
-			// }
+			foreach (var data in buffer) {
+				Console.WriteLine(data);
+			}
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
 		}
