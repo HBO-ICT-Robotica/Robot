@@ -29,8 +29,10 @@ namespace Robot {
 			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			//this.robotController = new TestController(this.robot);
-			this.robotController = new TrackingController(this.robot);
+			this.robotController = new TestController(this.robot);
+			//this.robotController = new TrackingController(this.robot);
+			//this.robotController = new PebblesController(this.robot);
+			//this.robotController = new GateController(this.robot);
 			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
