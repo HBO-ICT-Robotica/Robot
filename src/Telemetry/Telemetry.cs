@@ -16,12 +16,14 @@ namespace Robot.Telemetry {
 			public float[] servos = default;
 			public int[] motors = default;
 			public float[] targetDegrees = default;
+			public float weight;
 
-			public Package(string image, float[] servos, float[] targetDegrees, int[] motors) {
+			public Package(string image, float[] servos, float[] targetDegrees, int[] motors, float weight) {
 				this.image = image;
 				this.servos = servos;
 				this.motors = motors;
 				this.targetDegrees = targetDegrees;
+				this.weight = weight;
 			}
 		}
 
@@ -52,9 +54,10 @@ namespace Robot.Telemetry {
 				body.GetBackBodyPart().GetLegs()[1].GetWheel().GetMotor().GetPwm(),
 			};
 
-			float weight = robot.GetGripper().GetLoadCell().getWeight();
+			float weight = robot.GetGripper().GetLoadCell().GetWeight();
+			Console.WriteLine(weight);
 
-			var package = new Package(bufferAsText, servos, targetDegrees, motors);
+			var package = new Package(bufferAsText, servos, targetDegrees, motors, weight);
 
 			var json = JsonConvert.SerializeObject(package);
 

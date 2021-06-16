@@ -13,12 +13,14 @@ namespace Robot.Steering
         private float safetyFactor;
         private float carMaxSpeed;
 
-        private float leftSpeed = 0.0f;
-        private float rightSpeed = 0.0f;
+        private float frontLeftSpeed = 0.0f;
+        private float backLeftSpeed = 0.0f;
+        private float frontRightSpeed = 0.0f;
+        private float backRightSpeed = 0.0f;
 
         private InputCurve inputCurve = InputCurve.CUBIC;
 
-        public JoystickSteering(Joystick xJoystick, Joystick yJoystick, float maxSpeed, float bound = 0.1f, float safetyFactor = 0.5f, float carMaxSpeed = 255, InputCurve inputCurve = InputCurve.CUBIC)
+        public JoystickSteering(Joystick xJoystick, Joystick yJoystick, float maxSpeed, float bound = 0.1f, float safetyFactor = 0.5f, float carMaxSpeed = 100, InputCurve inputCurve = InputCurve.CUBIC)
         {
             this.xJoystick = xJoystick;
 			this.yJoystick = yJoystick;
@@ -32,8 +34,10 @@ namespace Robot.Steering
 
         public void UpdateSpeed()
         {
-            this.rightSpeed = 0.0f;
-            this.leftSpeed = 0.0f;
+            this.frontLeftSpeed = 0.0f;
+            this.backLeftSpeed = 0.0f;
+            this.frontRightSpeed = 0.0f;
+            this.backRightSpeed = 0.0f;
 
             var yJoystickval = xJoystick.GetRelativeValue();
             var xJoystickval = yJoystick.GetRelativeValue();
@@ -43,29 +47,46 @@ namespace Robot.Steering
             if (yJoystickval > bound || yJoystickval < -bound)
             {
                 // forward and reverse
-                leftSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
-                rightSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
+                frontLeftSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
+                backLeftSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
+                frontRightSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
+                backRightSpeed += GetEased(yJoystickval) * safetyFactor * carMaxSpeed;
             }
 
             if (xJoystickval > bound || xJoystickval < -bound)
             {
                 // check driving forward or driving backward
-                float winding = yJoystickval < bound ? -1 : 1;
+                float winding = xJoystickval < 0.0f ? -1 : 1;
 
-                // steering
-                leftSpeed += xJoystickval * safetyFactor * carMaxSpeed * winding;
-                rightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * winding;
+				Console.WriteLine(winding);
+				if (winding > 0.0f) {
+                    frontLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                    backRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                } else {
+                    frontRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                    backLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                }
             }
+		}
+
+        public int GetFrontLeftSpeed()
+        {
+            return (int) Math.Round(frontLeftSpeed);
         }
 
-        public int GetLeftSpeed()
+        public int GetBackLeftSpeed()
         {
-            return (int) Math.Round(leftSpeed);
+            return (int) Math.Round(backLeftSpeed);
         }
 
-        public int GetRightSpeed()
+        public int GetFrontRightSpeed()
         {
-            return (int) Math.Round(rightSpeed);
+            return (int) Math.Round(frontRightSpeed);
+        }
+
+        public int GetBackRightSpeed()
+        {
+            return (int) Math.Round(backRightSpeed);
         }
 
         private float GetEased(float x)

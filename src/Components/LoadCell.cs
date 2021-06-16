@@ -1,16 +1,18 @@
+using System.Threading;
+using System;
 using System.Device.Gpio;
 
 namespace Robot.Components {
 	public class LoadCell {
 		public LoadCell(int clockPinNumber, int dataPinNumber) {
 			this.clockPinNumber = clockPinNumber;
-            this.dataPinNumber = dataPinNumber;
+			this.dataPinNumber = dataPinNumber;
 
 			this.Begin();
 		}
 
 		private int clockPinNumber;
-        private int dataPinNumber;
+		private int dataPinNumber;
 
 		private GpioController gpio;
 
@@ -19,111 +21,135 @@ namespace Robot.Components {
 		/// </summary>
 		private bool available = false;
 
-        /// <summary>
-        /// Initialize the load sensing device.
-        /// </summary> 
-        /// <returns>
-        /// Async operation object.
-        /// </returns>
-        public bool Begin()
-        {
-            this.gpio = new GpioController();
+		/// <summary>
+		/// Initialize the load sensing device.
+		/// </summary> 
+		/// <returns>
+		/// Async operation object.
+		/// </returns>
+		public bool Begin() {
+			Console.WriteLine("Beginning loadcell");
+			this.gpio = new GpioController();
 
-            if (null == gpio)
-            {
-                available = false;
-                return false;
-            }
+			if (null == gpio) {
+				Console.WriteLine("No GPIO");
 
-            gpio.OpenPin(clockPinNumber, PinMode.Output);
-            gpio.Write(clockPinNumber, false);
-            gpio.OpenPin(dataPinNumber, PinMode.Input);
+				available = false;
+				return false;
+			}
 
-            available = true;
-            return true;
-        }
+			Console.WriteLine("setting low");
+			gpio.OpenPin(5, PinMode.Output);
+			gpio.Write(5, PinValue.Low);
 
-        public float getWeight() {
-			if (!available) { return 0.0f; }
-			
-			return ReadData();
-        }
+			gpio.OpenPin(dataPinNumber, PinMode.Input);
 
-        // Byte:     0        1        2        3
-        // Bits:  76543210 76543210 76543210 76543210
-        // Data: |--------|--------|--------|--------|
-        // Bit#:  33222222 22221111 11111100 00000000
-        //        10987654 32109876 54321098 76543210
-        private int ReadData()
-        {
-            uint value = 0;
-            byte[] data = new byte[4];
+			available = true;
 
-            // Wait for chip to become ready
-            for (; false != this.gpio.Read(dataPinNumber) ;);
+			Console.WriteLine("Begun loadcell");
 
-            // Clock in data
-            data[1] = ShiftInByte();
-            data[2] = ShiftInByte();
-            data[3] = ShiftInByte();
+			return true;
+		}
 
-            // Clock in gain of 128 for next reading
-			gpio.Write(clockPinNumber, true);
-			gpio.Write(clockPinNumber, false);
+		public float GetWeight() {
 
-            // Replicate the most significant bit to pad out a 32-bit signed integer
-            if (0x80 == (data[1] & 0x80))
-            {
-                data[0] = 0xFF;
-            } else {
-                data[0] = 0x00;
-            }
+			Console.WriteLine("Getting weight");
 
-            // Construct a 32-bit signed integer
-            value = (uint)((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]);
+			for (var i = 0; i < 24; i++) {
+                gpio.Write(clockPinNumber, PinValue.Low);
+				Thread.Sleep(10);
+				gpio.Write(clockPinNumber, PinValue.High);
+				Thread.Sleep(10);
 
-            // Datasheet indicates the value is returned as a two's complement value
-            // https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
+				var bit = gpio.Read(dataPinNumber);
 
-            // flip all the bits
-            value = ~value;
+				Console.WriteLine(bit == PinValue.High);
+			}
 
-            // ... and add 1
-            return (int)(++value);
-        }
+			Console.WriteLine("---");
 
-        private byte ShiftInByte()
-        {
-            byte value = 0x00;
+			return 0.0f;
 
-            // Convert "GpioPinValue.High" and "GpioPinValue.Low" to 1 and 0, respectively.
-            // NOTE: Loop is unrolled for performance
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 7);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 6);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 5);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 4);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 3);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 2);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 1);
-            gpio.Write(clockPinNumber, false);
-            gpio.Write(clockPinNumber, true);
-            value |= (byte)this.gpio.Read(dataPinNumber);
-            gpio.Write(clockPinNumber, false);
+			// if (!available) { return 0.0f; }
 
-            return value;
-        }
+			// return ReadData();
+		}
+
+		// Byte:     0        1        2        3
+		// Bits:  76543210 76543210 76543210 76543210
+		// Data: |--------|--------|--------|--------|
+		// Bit#:  33222222 22221111 11111100 00000000
+		//        10987654 32109876 54321098 76543210
+		private int ReadData() {
+			Console.WriteLine("Reading data");
+
+			uint value = 0;
+			byte[] data = new byte[4];
+
+			// Wait for chip to become ready
+            
+			//for (; false != this.gpio.Read(dataPinNumber);) ;
+
+			// Clock in data
+			data[1] = ShiftInByte();
+			data[2] = ShiftInByte();
+			data[3] = ShiftInByte();
+
+			// Clock in gain of 128 for next reading
+			gpio.Write(clockPinNumber, PinValue.High);
+			gpio.Write(clockPinNumber, PinValue.Low);
+
+			// Replicate the most significant bit to pad out a 32-bit signed integer
+			if (0x80 == (data[1] & 0x80)) {
+				data[0] = 0xFF;
+			} else {
+				data[0] = 0x00;
+			}
+
+			// Construct a 32-bit signed integer
+			value = (uint)((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]);
+
+			// Datasheet indicates the value is returned as a two's complement value
+			// https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
+
+			// flip all the bits
+			value = ~value;
+
+			// ... and add 1
+			return (int)(++value);
+		}
+
+		private byte ShiftInByte() {
+			byte value = 0x00;
+
+			// Convert "GpioPinValue.High" and "GpioPinValue.Low" to 1 and 0, respectively.
+			// NOTE: Loop is unrolled for performance
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 7);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 6);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 5);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 4);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 3);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 2);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)((byte)(this.gpio.Read(dataPinNumber)) << 1);
+			gpio.Write(clockPinNumber, PinValue.Low);
+			gpio.Write(clockPinNumber, PinValue.High);
+			value |= (byte)this.gpio.Read(dataPinNumber);
+			gpio.Write(clockPinNumber, PinValue.Low);
+
+			return value;
+		}
 	}
 }

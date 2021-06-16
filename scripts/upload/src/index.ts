@@ -55,7 +55,7 @@ const getAllFiles = function (rootPath: string, relPath: string, arrayOfFiles?: 
 const sftp = new client();
 
 sftp.connect({
-	host: "192.168.137.122",
+	host: "192.168.137.111",
 	port: 22,
 	username: "pi",
 	password: "raspberry",

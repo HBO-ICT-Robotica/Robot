@@ -12,10 +12,10 @@ namespace Robot.Components {
 
 		public void SetSpeed(int speed) {
 			if (speed < 0) {
-				//this.GetMotor().SetMode(Motor.Mode.REVERSE);
-				this.GetMotor().SetPwm(speed);
+				this.GetMotor().SetMode(Motor.Mode.REVERSE);
+				this.GetMotor().SetPwm(speed * -1 );
 			} else {
-				//this.GetMotor().SetMode(Motor.Mode.FORWARD);
+				this.GetMotor().SetMode(Motor.Mode.FORWARD);
 				this.GetMotor().SetPwm(speed);
 			}
 

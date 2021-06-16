@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,8 @@ namespace Robot {
 			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			this.robotController = new TestController(this.robot);
+			//this.robotController = new TestController(this.robot);
+			this.robotController = new TrackingController(this.robot);
 			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
@@ -63,10 +65,15 @@ namespace Robot {
 			var legLength = 108;
 			var legDistanceToWheel = 29;
 
+			// 3 Back right
+			// 0 Front left
+			// 1 Back left
+			// 2 Front Right
+
 			var frontLeftLeg = new Leg(
 				new Servo(0, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(3)
+					new Motor(0)
 				),
 				legLength,
 				legDistanceToWheel
@@ -75,7 +82,7 @@ namespace Robot {
 			var frontRightLeg = new Leg(
 				new Servo(1, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(0)
+					new Motor(2)
 				),
 				legLength,
 				legDistanceToWheel
@@ -84,7 +91,7 @@ namespace Robot {
 			var backLeftLeg = new Leg(
 				new Servo(2, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(2)
+					new Motor(1)
 				),
 				legLength,
 				legDistanceToWheel
@@ -93,7 +100,7 @@ namespace Robot {
 			var backRightLeg = new Leg(
 				new Servo(3, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
-					new Motor(1)
+					new Motor(3)
 				),
 				legLength,
 				legDistanceToWheel
@@ -109,7 +116,7 @@ namespace Robot {
 				new Joystick(0, 0, 63),
 				new Joystick(1, 0, 63),
 				new Gripper(
-					new Servo(5, false, new Degrees(135), new Degrees(90), new Degrees(135)), new LoadCell(5, 21)
+					new Servo(5, false, new Degrees(135), new Degrees(90), new Degrees(135)), new LoadCell(5, 2)
 				)
 			);
 

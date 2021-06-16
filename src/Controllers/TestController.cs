@@ -1,3 +1,4 @@
+using System.Threading;
 using Robot.Serial;
 using Robot.Utility;
 using System;
@@ -50,45 +51,61 @@ namespace Robot.Controllers {
 		}
 
 		public void Step(float dt) {
-			if (!running)
-				return;
+			// if (!running)
+			// 	return;
 
-			timeSinceLastTelemetryPush += dt;
+			// timeSinceLastTelemetryPush += dt;
 
-			if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
-				try {
-					videoCapture.Read(frame);
+			// if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
+			// 	try {
+			// 		videoCapture.Read(frame);
 
-					if (frame.Empty())
-						return;
+			// 		if (frame.Empty())
+			// 			return;
 
-					Telemetry.Telemetry.DoRequest(frame, this.robot).Wait();
-				} catch (Exception e) {
-					Console.WriteLine(e);
-				}
+			// 		Telemetry.Telemetry.DoRequest(frame, this.robot).Wait();
+			// 	} catch (Exception e) {
+			// 		Console.WriteLine(e);
+			// 	}
 
-				timeSinceLastTelemetryPush = 0.0f;
-			}
+			// 	timeSinceLastTelemetryPush = 0.0f;
+			// }
 
 			var thrustJoystick = this.robot.GetRightJoystick();
 			var steeringJoystick = this.robot.GetLeftJoystick();
 
+			//Console.WriteLine("weight = " + this.robot.GetGripper().GetLoadCell().GetWeight());
+			//Console.Write(thrustJoystick.GetRelativeValue());
 			this.steering.UpdateSpeed();
 
-			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
-				var wheel = leg.GetWheel();
-				wheel.SetSpeed(this.steering.GetLeftSpeed());
-			}
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed(this.steering.GetFrontLeftSpeed());
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed(this.steering.GetFrontRightSpeed());
 
-			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
-				var wheel = leg.GetWheel();
-				wheel.SetSpeed(this.steering.GetRightSpeed());
-			}
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed(this.steering.GetBackLeftSpeed());
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed(this.steering.GetBackRightSpeed());
 
-			var gripper = robot.GetGripper();
-			gripper.Open();
-			gripper.Close(Components.Gripper.Pickupable.BALL);
-			
+
+			// 	Thread.Sleep(1000);
+
+				// foreach (var leg in this.robot.GetBody().GetFrontBodyPart().GetLegs()) {
+				// 	var wheel = leg.GetWheel();
+				// 	//wheel.SetSpeed(this.steering.GetLeftSpeed());
+				// 	wheel.SetSpeed(30);
+				// }
+
+			// 	foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
+			// 		var wheel = leg.GetWheel();
+			// 		//wheel.SetSpeed(this.steering.GetRightSpeed());
+			// 		wheel.SetSpeed(-30);
+			// 	}
+
+			// 	Thread.Sleep(1000);
+			// }
+
+			// var gripper = robot.GetGripper();
+			// gripper.Open();
+			// gripper.Close(Components.Gripper.Pickupable.BALL);
+
 		}
 		public void Dispose() {
 			this.videoCapture.Dispose();
