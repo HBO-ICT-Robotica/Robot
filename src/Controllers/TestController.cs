@@ -50,13 +50,13 @@ namespace Robot.Controllers {
 		}
 
 		public void Step(float dt) {
-			this.robot.GetGripper().Close(Components.Gripper.Pickupable.BALL);
+			// this.robot.GetGripper().Close(Components.Gripper.Pickupable.BALL);
 
-			Thread.Sleep(1000);
+			// Thread.Sleep(1000);
 
-			this.robot.GetGripper().Open();
+			// this.robot.GetGripper().Open();
 
-			Thread.Sleep(1000);
+			// Thread.Sleep(1000);
 
 
 			// // if (!running)

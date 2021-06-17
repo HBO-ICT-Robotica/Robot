@@ -38,6 +38,10 @@ namespace Robot.Serial {
 			this.commands.Add(0x00, new UpdateServoPosition(this.servoPositionUpdated));
 			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
 			this.commands.Add(0x02, new UpdateLoadCellValue(this));
+			this.commands.Add(0x03, new ShutdownCommand(this));
+			this.commands.Add(0x04, new ModusCommand(this));
+			this.commands.Add(0x05, new DCMotorsCommand(this));
+			this.commands.Add(0x06, new ServoCommand(this));
 			//this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
 		}
 
@@ -65,6 +69,7 @@ namespace Robot.Serial {
 		private void OnDataReceived(object sender, SerialDataReceivedEventArgs e) {
 			while (this.serialPort.BytesToRead > 0) {
 				var data = (byte)this.serialPort.ReadByte();
+				Console.WriteLine(data);
 
 				if (this.currentParsingCommand == null) {
 					if (!this.commands.TryGetValue(data, out var command)) {
@@ -72,6 +77,7 @@ namespace Robot.Serial {
 						continue;
 					} else {
 						this.currentParsingCommand = command;
+						Console.WriteLine(this.currentParsingCommand);
 					}
 				} else {
 					this.incomingBytes[this.nextIncomingByteIndex] = data;
