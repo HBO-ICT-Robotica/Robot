@@ -24,10 +24,10 @@ namespace Robot.Controllers {
 			this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
 			this.videoCapture.Set(VideoCaptureProperties.BufferSize, 1);
 			this.frame = new Mat();
-			this.robot.GetBody().GoToRoot();
+			//this.robot.GetBody().GoToRoot();
 
 			this.virtualWindow = new VirtualWindow.VirtualWindow(this.frame);
-			ServiceLocator.Get<VirtualWindowHost>().AddVirtualWindow(this.virtualWindow);
+			//ServiceLocator.Get<VirtualWindowHost>().AddVirtualWindow(this.virtualWindow);
 
 			this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed((int)-40);
 			this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed((int)-40);

@@ -26,12 +26,14 @@ namespace Robot.Components {
 			return this.wheel;
 		}
 
-		public void SetHeight(IDistance height) {
+		public void SetHeight(int height) {
 			var length = this.GetMaxLength();
 
-			var targetAngle = new Radians(MathF.Acos((float)height.GetDistanceInMM()/length));
+			var targetAngle = MathF.Acos((float)height / length);
 
-			this.servo.SetTargetAngle(targetAngle);
+			var targetAngleDegrees = (int)(targetAngle * (180.0 / MathF.PI)) + 45;
+
+			this.servo.SetTargetAngle(targetAngleDegrees);
 		}
 
 		public int GetMaxLength() {

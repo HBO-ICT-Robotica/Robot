@@ -10,7 +10,7 @@ namespace Robot.Components {
 			NEUTRAL = 3,
 		}
 
-		private TeensyInterface hardwareInterface = null;
+		private IHardwareInterface hardwareInterface = null;
 
 		private byte id = default;
 
@@ -19,7 +19,7 @@ namespace Robot.Components {
 		private Mode mode = Mode.NEUTRAL;
 
 		public Motor(byte id) {
-			this.hardwareInterface = ServiceLocator.Get<TeensyInterface>();
+			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 
 			this.id = id;
 

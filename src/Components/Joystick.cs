@@ -8,7 +8,7 @@ namespace Robot.Components
 {
 	public class Joystick
 	{
-		private TeensyInterface hardwareInterface = null;
+		private IHardwareInterface hardwareInterface = null;
 
 		private int id = default;
 
@@ -18,7 +18,7 @@ namespace Robot.Components
 
 		public Joystick(int id, int minValue, int maxValue)
 		{
-			this.hardwareInterface = ServiceLocator.Get<TeensyInterface>();
+			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 
 			this.id = id;
 

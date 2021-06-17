@@ -14,7 +14,7 @@ namespace Robot.Components {
 			return this.legs;
 		}
 
-		public void SetTargetHeight(IDistance height) {
+		public void SetTargetHeight(int height) {
 			foreach (var leg in legs) {
 				leg.SetHeight(height);
 			}

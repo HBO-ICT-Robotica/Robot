@@ -54,10 +54,10 @@ namespace Robot.Telemetry {
 				body.GetBackBodyPart().GetLegs()[1].GetWheel().GetMotor().GetPwm(),
 			};
 
-			float weight = robot.GetGripper().GetLoadCell().GetWeight();
-			Console.WriteLine(weight);
+			// float weight = robot.GetGripper().GetLoadCell().GetWeight();
+			// Console.WriteLine(weight);
 
-			var package = new Package(bufferAsText, servos, targetDegrees, motors, weight);
+			var package = new Package(bufferAsText, servos, targetDegrees, motors, 0);
 
 			var json = JsonConvert.SerializeObject(package);
 

@@ -4,6 +4,7 @@ namespace Robot.Serial {
 		public event ServoPositionUpdatedHandler servoPositionUpdated;
 		public event JoystickValueReceivedHandler joystickValueReceived;
 		public event RemoteTimeoutHandler remoteTimeoutEvent;
+		public event LoadCellValueUpdatedHandler loadCellValueUpdated;
 #pragma warning restore 67
 
 		public void Open() { }
@@ -17,5 +18,6 @@ namespace Robot.Serial {
 		public void SetMotorMode(byte motorId, byte mode) { }
 
 		public void InvokeJoystickValueReceived(byte id, byte value) { }
+		public void InvokeLoadCellValueUpdated(int value) { }
 	}
 }

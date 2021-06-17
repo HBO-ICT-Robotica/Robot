@@ -27,10 +27,10 @@ namespace Robot.Controllers {
 			this.frame = new Mat();
 
 			//this.robot.GetBody().GoToRoot();
-			this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(new Milimeter(100));
-			this.robot.GetBody().GetBackBodyPart().SetTargetHeight(new Milimeter(100));
+			// this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(100);
+			// this.robot.GetBody().GetBackBodyPart().SetTargetHeight(100);
 
-			var hardwareInterface = ServiceLocator.Get<TeensyInterface>();
+			var hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 			hardwareInterface.remoteTimeoutEvent += OnRemoteTimeout;
 
 			this.steering = new JoystickSteering(this.robot.GetLeftJoystick(), this.robot.GetRightJoystick(), 255);

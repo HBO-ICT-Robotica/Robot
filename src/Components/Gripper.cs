@@ -1,11 +1,8 @@
-using Robot.Units.Angle;
-
 namespace Robot.Components {
 	public class Gripper {
 		public enum Pickupable {
 			BALL,
 			WEIGHT,
-			
 		}
 
 		private Servo servo = null;
@@ -18,16 +15,16 @@ namespace Robot.Components {
 		}
 
 		public void Open() {
-			this.servo.SetTargetAngle(new Degrees(135));
+			this.servo.SetTargetAngle(135);
 			
 			isOpen = true;
 		}
 
 		public void Close(Pickupable pickupable) {
 			if (pickupable == Pickupable.BALL)
-				this.servo.SetTargetAngle(new Degrees(105));
+				this.servo.SetTargetAngle(105);
 			else if (pickupable == Pickupable.WEIGHT)
-				this.servo.SetTargetAngle(new Degrees(90));
+				this.servo.SetTargetAngle(90);
 			
 						
 			isOpen = false;

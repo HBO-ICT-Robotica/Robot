@@ -20,7 +20,7 @@ namespace Robot.Steering
 
         private InputCurve inputCurve = InputCurve.CUBIC;
 
-        public JoystickSteering(Joystick xJoystick, Joystick yJoystick, float maxSpeed, float bound = 0.1f, float safetyFactor = 0.5f, float carMaxSpeed = 100, InputCurve inputCurve = InputCurve.CUBIC)
+        public JoystickSteering(Joystick xJoystick, Joystick yJoystick, float maxSpeed, float bound = 0.1f, float safetyFactor = 0.5f, float carMaxSpeed = 130, InputCurve inputCurve = InputCurve.CUBIC)
         {
             this.xJoystick = xJoystick;
 			this.yJoystick = yJoystick;
@@ -58,13 +58,12 @@ namespace Robot.Steering
                 // check driving forward or driving backward
                 float winding = xJoystickval < 0.0f ? -1 : 1;
 
-				Console.WriteLine(winding);
 				if (winding > 0.0f) {
-                    frontLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
-                    backRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                    frontLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.0f;
+                    backRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.0f;
                 } else {
-                    frontRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
-                    backLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.5f;
+                    frontRightSpeed -= xJoystickval * safetyFactor * carMaxSpeed * 2.0f;
+                    backLeftSpeed += xJoystickval * safetyFactor * carMaxSpeed * 2.0f;
                 }
             }
 		}

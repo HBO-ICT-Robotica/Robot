@@ -1,10 +1,11 @@
+using System;
 using Robot.Serial;
 using Robot.Units.Angle;
 using Robot.Utility;
 
 namespace Robot.Components {
 	public class Servo {
-		private TeensyInterface hardwareInterface = null;
+		private IHardwareInterface hardwareInterface = null;
 
 		private byte id = default;
 		private bool winding = default;
@@ -12,6 +13,8 @@ namespace Robot.Components {
 		private IAngle rootAngle = default;
 		private IAngle minAngle = default;
 		private IAngle maxAngle = default;
+
+		private int targetDegree = 0;
 
 		private IAngle targetAngle = default;
 		private IAngle angle = default;
@@ -21,7 +24,7 @@ namespace Robot.Components {
 		private ushort speed = default;
 
 		public Servo(byte id, bool winding, IAngle rootAngle, IAngle minAngle, IAngle maxAngle) {
-			this.hardwareInterface = ServiceLocator.Get<TeensyInterface>();
+			this.hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 
 			this.id = id;
 			this.winding = winding;
@@ -53,17 +56,17 @@ namespace Robot.Components {
 			return this.rootAngle;
 		}
 
-		public void SetTargetAngle(IAngle angle) {
-			if (this.winding)
-				this.targetAngle = new Degrees(300.0f) - angle;
+		public void SetTargetAngle(int targetPosition) {
+		if (this.winding)
+				this.targetDegree = 300 - targetPosition;
 			else
-				this.targetAngle = angle;
+				this.targetDegree = targetPosition;
 
 			this.FlushTargetAngle();
 		}
 
 		private void FlushTargetAngle() {
-			this.hardwareInterface.SetServoTargetDegree(this.id, (ushort)(this.targetAngle).AsDegrees());
+			this.hardwareInterface.SetServoTargetDegree(this.id, (ushort)(this.targetDegree));
 		}
 
 		public IAngle GetAngle() {
@@ -109,7 +112,7 @@ namespace Robot.Components {
 		}
 
 		public void GoToRoot() {
-			this.SetTargetAngle(this.rootAngle);
+			this.SetTargetAngle((int)this.maxAngle.AsDegrees());
 		}
 	}
 }

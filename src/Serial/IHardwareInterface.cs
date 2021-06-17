@@ -2,11 +2,13 @@ namespace Robot.Serial {
 	public delegate void ServoPositionUpdatedHandler(byte id, ushort position);
 	public delegate void JoystickValueReceivedHandler(byte id, byte value);
 	public delegate void RemoteTimeoutHandler();
+	public delegate void LoadCellValueUpdatedHandler(int value);
 
 	public interface IHardwareInterface {
 		event ServoPositionUpdatedHandler servoPositionUpdated;
 		event JoystickValueReceivedHandler joystickValueReceived;
 		event RemoteTimeoutHandler remoteTimeoutEvent;
+		event LoadCellValueUpdatedHandler loadCellValueUpdated;
 
 		void Open();
 		void Close();
@@ -19,5 +21,6 @@ namespace Robot.Serial {
 		void SetMotorMode(byte motorId, byte mode);
 
 		void InvokeJoystickValueReceived(byte id, byte value);
+		void InvokeLoadCellValueUpdated(int value);
 	}
 }

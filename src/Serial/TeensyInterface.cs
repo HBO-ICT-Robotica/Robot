@@ -9,6 +9,7 @@ namespace Robot.Serial {
 		public event ServoPositionUpdatedHandler servoPositionUpdated;
 		public event JoystickValueReceivedHandler joystickValueReceived;
 		public event RemoteTimeoutHandler remoteTimeoutEvent;
+		public event LoadCellValueUpdatedHandler loadCellValueUpdated;
 
 		private SerialPort serialPort = null;
 
@@ -36,6 +37,7 @@ namespace Robot.Serial {
 			this.commands = new Dictionary<byte, InCommand>();
 			this.commands.Add(0x00, new UpdateServoPosition(this.servoPositionUpdated));
 			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
+			this.commands.Add(0x02, new UpdateLoadCellValue(this));
 			//this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
 		}
 
@@ -143,6 +145,10 @@ namespace Robot.Serial {
 
 		public void InvokeJoystickValueReceived(byte id, byte value) {
 			this.joystickValueReceived?.Invoke(id, value);
+		}
+
+		public void InvokeLoadCellValueUpdated(int value) {
+			this.loadCellValueUpdated?.Invoke(value);
 		}
 	}
 }
