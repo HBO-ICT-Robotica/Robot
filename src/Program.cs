@@ -29,10 +29,11 @@ namespace Robot {
 			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			this.robotController = new TestController(this.robot);
+			//this.robotController = new TestController(this.robot);
 			//this.robotController = new TrackingController(this.robot);
 			//this.robotController = new PebblesController(this.robot);
 			//this.robotController = new GateController(this.robot);
+			this.robotController = new DanceController(this.robot);
 			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
@@ -41,8 +42,8 @@ namespace Robot {
 		}
 
 		private void InitializeHardwareInterface(string port, int baudRate) {
-			this.hardwareInterface = new TeensyInterface(port, baudRate);
-			//this.hardwareInterface = new VoidInterface();
+			//this.hardwareInterface = new TeensyInterface(port, baudRate);
+			this.hardwareInterface = new VoidInterface();
 			this.hardwareInterface.Open();
 
 			ServiceLocator.Register<IHardwareInterface>(this.hardwareInterface);
