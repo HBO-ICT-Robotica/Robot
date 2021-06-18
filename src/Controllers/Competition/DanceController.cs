@@ -13,7 +13,7 @@ namespace Robot.Controllers {
 
 		float currentTime = 0; // Current time of the song (Between 0 and lenth of song) in seconds. (Eg: 62.59f)
 		int currentBar = 0; // Current bar
-		int currentBeat = 0; // Current beat
+		int currentBeat = -1; // Current beat
 
 		private float bpm = 120.4f;
 
@@ -51,15 +51,50 @@ namespace Robot.Controllers {
 		}
 
 		public void DoStep(float currentTime, bool isBar, bool isBeat, int currentBar, int currentBeat) {
-			if (isBar && currentBar >= 0 && currentBar <= 20) {
-				if (currentBeat % 2 == 0) {
-					robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
-					robot.GetBody().GetBackBodyPart().SetTargetHeight(50);
-				} else {
-					robot.GetBody().GetFrontBodyPart().SetTargetHeight(50);
-					robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
-				}
+			currentBar += 1;
+
+			if (isBar && currentBar >= 0 && currentBar <= 4) {
+				Console.WriteLine("Draaiend overeind");
 			}
+
+			if (isBar && currentBar >= 5 && currentBar <= 12) {
+				Console.WriteLine("Piroette");
+			}
+
+			if (isBar && currentBar >= 13 && currentBar <= 20) {
+				Console.WriteLine("Twerken");
+			}
+
+			if (isBar && currentBar >= 21 && currentBar <= 28) {
+				Console.WriteLine("Wiggelen");
+			}
+
+			if (isBar && currentBar >= 29 && currentBar <= 32) {
+				Console.WriteLine("poot uitsteken en wiggelen");
+			}	
+
+			if (isBar && currentBar >= 33 && currentBar <= 36) {
+				Console.WriteLine("andere poot uitsteken en wiggelen");
+			}
+
+			if (isBar && currentBar >= 37 && currentBar <= 44) {
+				Console.WriteLine("russisch shuffelen");
+			}
+
+			if (isBar && currentBar >= 45 && currentBar <= 52) {
+				Console.WriteLine("donuts");
+			}
+
+			if (isBar && currentBar >= 53 && currentBar <= 60) {
+				Console.WriteLine("wiggelen");
+			}
+
+			if (isBar && currentBar >= 61) {
+				Console.WriteLine("Buiging");
+			}
+
+			Console.WriteLine(currentBar);
+
 		}
 
 		public void Dispose() {
