@@ -39,7 +39,7 @@ namespace Robot.Controllers {
 			if (currentTime - lastBeatTime >= 60 / this.bpm) {
 				isBeat = true;
 				currentBeat++;
-					//Console.Beep();
+				//Console.Beep();
 				lastBeatTime = MathF.Round(currentTime / (60 / this.bpm)) * (60 / this.bpm);
 				if ((currentBeat - 1) % 4 == 0) {
 					isBar = true;
@@ -58,20 +58,129 @@ namespace Robot.Controllers {
 			}
 
 			if (isBar && currentBar >= 5 && currentBar <= 12) {
-				Console.WriteLine("Piroette");
+				Console.WriteLine("Piroette links en rechts");
+				if (currentBar == 5 || currentBar == 6) {
+					this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed(-60);
+					this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed(60);
+				} else {
+					this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed(0);
+					this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed(0);
+
+					this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed(-60);
+					this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed(60);
+				}
 			}
 
 			if (isBar && currentBar >= 13 && currentBar <= 20) {
 				Console.WriteLine("Twerken");
+				this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed(0);
+				this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed(0);
+				if (currentBar == 13 || currentBar == 14) {
+					this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(100);
+
+					if (currentBeat % 2 == 0)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(10);
+					else
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(100);
+				}
 			}
 
 			if (isBar && currentBar >= 21 && currentBar <= 28) {
 				Console.WriteLine("Wiggelen");
+				this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+				this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+				if (currentBar == 21 || currentBar == 22) {
+					if (currentBeat % 8 == 0)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 1)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 2)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 3)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 4)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 5)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 6)
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 7)
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(108);				
+				}
+
+				if (currentBar == 23 || currentBar == 24) {
+					if (currentBeat % 8 == 0)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 1)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 2)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 3)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 4)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 5)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+
+					if (currentBeat % 8 == 6)
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 8 == 7)
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(108);				
+				}
+
+				if (currentBar == 25 || currentBar == 26) {
+					if (currentBeat % 4 == 0)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 4 == 1)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(70);
+						
+					if (currentBeat % 4 == 2)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(70);
+						
+					if (currentBeat % 4 == 3)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(70);							
+				}
+
+				if (currentBar == 27 || currentBar == 28) {
+					if (currentBeat % 4 == 0)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(70);
+
+					if (currentBeat % 4 == 1)
+						this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(70);
+						
+					if (currentBeat % 4 == 2)
+						this.robot.GetBody().GetRightBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(70);
+						
+					if (currentBeat % 4 == 3)
+						this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+						this.robot.GetBody().GetLeftBodyPart().SetTargetHeight(70);							
+				}
 			}
 
 			if (isBar && currentBar >= 29 && currentBar <= 32) {
 				Console.WriteLine("poot uitsteken en wiggelen");
-			}	
+				this.robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+			}
 
 			if (isBar && currentBar >= 33 && currentBar <= 36) {
 				Console.WriteLine("andere poot uitsteken en wiggelen");
