@@ -1,6 +1,6 @@
 namespace Robot.Steering
 {
-    public partial class JoystickSteering
+    public partial class WheelsControl
     {
         public enum InputCurve
         {

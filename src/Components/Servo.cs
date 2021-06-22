@@ -73,8 +73,8 @@ namespace Robot.Components {
 			return this.angle;
 		}
 
-		public IAngle GetTargetAngle() {
-			return this.targetAngle;
+		public int GetTargetDegree() {
+			return this.targetDegree;
 		}
 
 		public void SetLedState(bool enabled) {

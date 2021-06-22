@@ -1,10 +1,6 @@
-using System.Threading;
 using Robot.Serial;
 using Robot.Utility;
-using System;
 using OpenCvSharp;
-using Robot.Units.Distance;
-using Robot.Utility.Logging;
 using Robot.Steering;
 
 namespace Robot.Controllers {
@@ -18,7 +14,7 @@ namespace Robot.Controllers {
 
 		private bool running = true;
 
-		private JoystickSteering steering;
+		private WheelsControl steering;
 
 		public GateController(Robot.Components.Robot robot) {
 			this.robot = robot;
@@ -33,7 +29,7 @@ namespace Robot.Controllers {
 			var hardwareInterface = ServiceLocator.Get<IHardwareInterface>();
 			hardwareInterface.remoteTimeoutEvent += OnRemoteTimeout;
 
-			this.steering = new JoystickSteering(this.robot.GetLeftJoystick(), this.robot.GetRightJoystick(), 255);
+			this.steering = new WheelsControl(this.robot.GetSteeringJoystick(), this.robot.GetThrustJoystick(), 255);
 		}
 
 		private void OnRemoteTimeout() {
@@ -71,18 +67,17 @@ namespace Robot.Controllers {
 			// 	timeSinceLastTelemetryPush = 0.0f;
 			// }
 
-			var thrustJoystick = this.robot.GetRightJoystick();
-			var steeringJoystick = this.robot.GetLeftJoystick();
+			var thrustJoystick = this.robot.GetThrustJoystick();
+			var steeringJoystick = this.robot.GetSteeringJoystick();
 
 			//Console.WriteLine("weight = " + this.robot.GetGripper().GetLoadCell().GetWeight());
 			//Console.Write(thrustJoystick.GetRelativeValue());
-			this.steering.UpdateSpeed();
+			var speed = this.steering.GetSpeed();
 
-			this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed(this.steering.GetFrontLeftSpeed());
-			this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed(this.steering.GetFrontRightSpeed());
-
-			this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed(this.steering.GetBackLeftSpeed());
-			this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed(this.steering.GetBackRightSpeed());
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed((int)speed.frontLeft);
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed((int)speed.frontRight);
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed((int)speed.backLeft);
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed((int)speed.backRight);
 
 
 			// 	Thread.Sleep(1000);

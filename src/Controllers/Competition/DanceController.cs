@@ -51,13 +51,16 @@ namespace Robot.Controllers {
 		}
 
 		public void DoStep(float currentTime, bool isBar, bool isBeat, int currentBar, int currentBeat) {
-			if (isBar && currentBar >= 0 && currentBar <= 20) {
+			if (isBeat && currentBar >= 0 && currentBar <= 20) {
+				Console.WriteLine(currentBeat);
 				if (currentBeat % 2 == 0) {
-					robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
-					robot.GetBody().GetBackBodyPart().SetTargetHeight(50);
+					//robot.GetBody().GetFrontBodyPart().SetTargetHeight(108);
+					robot.GetBody().GetBackBodyPart().SetTargetHeight(70);
+					Console.WriteLine("Down");
 				} else {
-					robot.GetBody().GetFrontBodyPart().SetTargetHeight(50);
+					//robot.GetBody().GetFrontBodyPart().SetTargetHeight(90);
 					robot.GetBody().GetBackBodyPart().SetTargetHeight(108);
+					Console.WriteLine("Up");
 				}
 			}
 		}

@@ -29,21 +29,23 @@ namespace Robot {
 			this.InitializeVirtualWindowHost();
 			this.InitializeRobot();
 
-			//this.robotController = new TestController(this.robot);
+			this.robotController = new TestController(this.robot);
 			//this.robotController = new TrackingController(this.robot);
 			//this.robotController = new PebblesController(this.robot);
 			//this.robotController = new GateController(this.robot);
-			this.robotController = new DanceController(this.robot);
+			//this.robotController = new DanceController(this.robot);
 			this.logger.LogDebug($"Initialized controller '{this.robotController}'");
 		}
 
 		public void Step(float dt) {
-			this.robotController.Step(dt);
+			if (this.hardwareInterface.IsReady()) {
+				this.robotController.Step(dt);
+			}
 		}
 
 		private void InitializeHardwareInterface(string port, int baudRate) {
-			//this.hardwareInterface = new TeensyInterface(port, baudRate);
-			this.hardwareInterface = new VoidInterface();
+			this.hardwareInterface = new TeensyInterface(port, baudRate);
+			//this.hardwareInterface = new VoidInterface();
 			this.hardwareInterface.Open();
 
 			ServiceLocator.Register<IHardwareInterface>(this.hardwareInterface);
@@ -68,13 +70,8 @@ namespace Robot {
 			var legLength = 108;
 			var legDistanceToWheel = 29;
 
-			// 3 Back right
-			// 0 Front left
-			// 1 Back left
-			// 2 Front Right
-
 			var frontLeftLeg = new Leg(
-				new Servo(2, true, legZeroAngle, legMinAngle, legMaxAngle),
+				new Servo(3, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(0)
 				),
@@ -83,7 +80,7 @@ namespace Robot {
 			);
 
 			var frontRightLeg = new Leg(
-				new Servo(3, false, legZeroAngle, legMinAngle, legMaxAngle),
+				new Servo(2, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(2)
 				),
@@ -92,7 +89,7 @@ namespace Robot {
 			);
 
 			var backLeftLeg = new Leg(
-				new Servo(0, true, legZeroAngle, legMinAngle, legMaxAngle),
+				new Servo(1, false, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(1)
 				),
@@ -101,7 +98,7 @@ namespace Robot {
 			);
 
 			var backRightLeg = new Leg(
-				new Servo(1, false, legZeroAngle, legMinAngle, legMaxAngle),
+				new Servo(0, true, legZeroAngle, legMinAngle, legMaxAngle),
 				new Wheel(
 					new Motor(3)
 				),
@@ -116,8 +113,10 @@ namespace Robot {
 					new BodyPart(new List<Leg>() { frontLeftLeg, backLeftLeg }),
 					new BodyPart(new List<Leg>() { frontRightLeg, backRightLeg })
 				),
-				new Joystick(0, 0, 63),
+				new Joystick(0, 3, 63),
 				new Joystick(1, 0, 63),
+				new Joystick(2, 3, 63),
+				new Joystick(3, 0, 63),
 				new Gripper(
 					new Servo(4, false, new Degrees(135), new Degrees(90), new Degrees(135)), new LoadCell()
 				)

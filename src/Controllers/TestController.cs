@@ -12,105 +12,75 @@ namespace Robot.Controllers {
 	public class TestController : IRobotController {
 		private Robot.Components.Robot robot = null;
 
-		private VideoCapture videoCapture = null;
-		private Mat frame = null;
-
-		private float timeSinceLastTelemetryPush = float.MaxValue;
-
-		private bool running = true;
-
-		private JoystickSteering steering;
+		private WheelsControl steering;
 
 		public TestController(Robot.Components.Robot robot) {
 			this.robot = robot;
 
-			this.videoCapture = VideoCapture.FromCamera(0, VideoCaptureAPIs.ANY);
-			this.frame = new Mat();
+			this.steering = new WheelsControl(this.robot.GetSteeringJoystick(), this.robot.GetThrustJoystick(), 0.05f, 180);
 
-			this.steering = new JoystickSteering(this.robot.GetLeftJoystick(), this.robot.GetRightJoystick(), 255);
+			//this.robot.GoToRoot();
+			// this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(70, -30);
+			// this.robot.GetBody().GetBackBodyPart().SetTargetHeight(70, -30);
 
-			//this.robot.GetBody().GoToRoot();
-			//this.robot.GetBody().GetFrontBodyPart().SetTargetHeight(new Milimeter(100));
-			//this.robot.GetBody().GetBackBodyPart().GetLegs()[0].SetHeight(108);
-			//this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetServo().SetTargetAngle(new Degrees(200));
-		}
+			// Thread.Sleep(1000);
 
-		private void OnRemoteTimeout() {
-			this.running = false;
+			// this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].SetHeight(0);
 
-			foreach (var leg in this.robot.GetBody().GetLeftBodyPart().GetLegs()) {
-				var wheel = leg.GetWheel();
-				wheel.SetSpeed(0);
-			}
+			// Thread.Sleep(1000);
 
-			foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
-				var wheel = leg.GetWheel();
-				wheel.SetSpeed(0);
-			}
+			// foreach (var leg in this.robot.GetBody().GetFrontBodyPart().GetLegs()) {
+			// 	leg.GetWheel().SetSpeed(60);
+			// }
+
+			// foreach (var leg in this.robot.GetBody().GetBackBodyPart().GetLegs()) {
+			// 	leg.GetWheel().SetSpeed(60);
+			// }
+
+			// Thread.Sleep(2000);
+
+			// foreach (var leg in this.robot.GetBody().GetFrontBodyPart().GetLegs()) {
+			// 	leg.GetWheel().SetSpeed(0);
+			// }
+
+			// foreach (var leg in this.robot.GetBody().GetBackBodyPart().GetLegs()) {
+			// 	leg.GetWheel().SetSpeed(0);
+			// }
+
+			// Thread.Sleep(1000);
+
+			// this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].SetHeight(108, -30);
 		}
 
 		public void Step(float dt) {
-			// this.robot.GetGripper().Close(Components.Gripper.Pickupable.BALL);
+			var speed = this.steering.GetSpeed();
 
-			// Thread.Sleep(1000);
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[0].GetWheel().SetSpeed((int)speed.frontLeft);
+			this.robot.GetBody().GetFrontBodyPart().GetLegs()[1].GetWheel().SetSpeed((int)speed.frontRight);
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[0].GetWheel().SetSpeed((int)speed.backLeft);
+			this.robot.GetBody().GetBackBodyPart().GetLegs()[1].GetWheel().SetSpeed((int)speed.backRight);
 
-			// this.robot.GetGripper().Open();
+			var rawFrontHeightInput = Math.Clamp(Map(this.robot.GetFrontHeightJoystick().GetRelativeValue(), 0.5f, 1f, 1f, 0f), 0f, 1f);
+			var rawBackHeightInput = Math.Clamp(Map(this.robot.GetBackHeightJoystick().GetRelativeValue(), 0.5f, 1f, 1f, 0f), 0f, 1f);
 
-			// Thread.Sleep(1000);
+			var front = this.robot.GetBody().GetFrontBodyPart();
+			var back = this.robot.GetBody().GetBackBodyPart();
 
+			front.GetLegs()[0].GetServo().SetTargetAngle((int)(front.GetLegs()[0].GetServo().GetTargetDegree() + rawFrontHeightInput));
+			front.GetLegs()[1].GetServo().SetTargetAngle((int)(front.GetLegs()[0].GetServo().GetTargetDegree() + rawFrontHeightInput));
 
-			// // if (!running)
-			// // 	return;
-
-			// // timeSinceLastTelemetryPush += dt;
-
-			// // if (timeSinceLastTelemetryPush >= (1.0f / 24.0f)) {
-			// // 	try {
-			// // 		videoCapture.Read(frame);
-
-			// // 		if (frame.Empty())
-			// // 			return;
-
-			// // 		Telemetry.Telemetry.DoRequest(frame, this.robot).Wait();
-			// // 	} catch (Exception e) {
-			// // 		Console.WriteLine(e);
-			// // 	}
-
-			// // 	timeSinceLastTelemetryPush = 0.0f;
-			// // }
-
-			// var thrustJoystick = this.robot.GetRightJoystick();
-			// var steeringJoystick = this.robot.GetLeftJoystick();
-
-			// //Console.WriteLine("weight = " + this.robot.GetGripper().GetLoadCell().GetWeight());
-			// //Console.Write(thrustJoystick.GetRelativeValue());
+			back.GetLegs()[0].GetServo().SetTargetAngle((int)(back.GetLegs()[0].GetServo().GetTargetDegree() + rawBackHeightInput));
+			back.GetLegs()[1].GetServo().SetTargetAngle((int)(back.GetLegs()[0].GetServo().GetTargetDegree() + rawBackHeightInput));
 
 
-			// // 	Thread.Sleep(1000);
-
-			// 	// foreach (var leg in this.robot.GetBody().GetFrontBodyPart().GetLegs()) {
-			// 	// 	var wheel = leg.GetWheel();
-			// 	// 	//wheel.SetSpeed(this.steering.GetLeftSpeed());
-			// 	// 	wheel.SetSpeed(30);
-			// 	// }
-
-			// // 	foreach (var leg in this.robot.GetBody().GetRightBodyPart().GetLegs()) {
-			// // 		var wheel = leg.GetWheel();
-			// // 		//wheel.SetSpeed(this.steering.GetRightSpeed());
-			// // 		wheel.SetSpeed(-30);
-			// // 	}
-
-			// // 	Thread.Sleep(1000);
-			// // }
-
-			// // var gripper = robot.GetGripper();
-			// // gripper.Open();
-			// // gripper.Close(Components.Gripper.Pickupable.BALL);
-
+			//back.SetTargetHeight((int)(back.GetMaxHeight() * rawBackHeightInput));
 		}
+
 		public void Dispose() {
-			this.videoCapture.Dispose();
-			this.frame.Dispose();
+		}
+
+		private float Map(float x, float inMin, float inMax, float outMin, float outMax) {
+			return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 		}
 	}
 }

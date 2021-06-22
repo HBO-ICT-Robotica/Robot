@@ -13,6 +13,9 @@ namespace Robot.Serial {
 		void Open();
 		void Close();
 
+		void Reset();
+		bool IsReady();
+
 		void SetServoTargetDegree(byte servoId, ushort position);
 		void SetServoLight(byte servoId, bool enabled);
 		void SetServoSpeed(byte servoId, ushort speed);
@@ -20,7 +23,11 @@ namespace Robot.Serial {
 		void SetMotorPwm(byte motorId, byte pwm);
 		void SetMotorMode(byte motorId, byte mode);
 
+		void SendWeight(int weight);
+
+		void InvokeServoPositionUpdated(byte id, ushort position);
 		void InvokeJoystickValueReceived(byte id, byte value);
 		void InvokeLoadCellValueUpdated(int value);
+		void InvokeRemoteTimeout();
 	}
 }

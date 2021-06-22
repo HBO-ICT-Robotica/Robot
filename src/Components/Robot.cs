@@ -2,15 +2,22 @@ namespace Robot.Components {
 	public class Robot {
 		private Body body = null;
 
-		private Joystick leftJoystick = null;
-		private Joystick rightJoystick = null;
+		private Joystick steeringJoystick = null;
+		private Joystick thrustJoystick = null;
+
+		private Joystick frontHeightJoystick = null;
+		private Joystick backHeightJoystick = null;
+
 		private Gripper gripper = null;
 
-		public Robot(Body body, Joystick leftJoystick, Joystick rightJoystick, Gripper gripper) {
+		public Robot(Body body, Joystick steeringJoystick, Joystick thrustJoystick, Joystick frontHeightJoystick, Joystick backHeightJoystick, Gripper gripper) {
 			this.body = body;
 
-			this.leftJoystick = leftJoystick;
-			this.rightJoystick = rightJoystick;
+			this.steeringJoystick = steeringJoystick;
+			this.thrustJoystick = thrustJoystick;
+
+			this.frontHeightJoystick = frontHeightJoystick;
+			this.backHeightJoystick = backHeightJoystick;
 
 			this.gripper = gripper;
 		}
@@ -19,12 +26,20 @@ namespace Robot.Components {
 			return this.body;
 		}
 
-		public Joystick GetLeftJoystick() {
-			return this.leftJoystick;
+		public Joystick GetSteeringJoystick() {
+			return this.steeringJoystick;
 		}
 
-		public Joystick GetRightJoystick() {
-			return this.rightJoystick;
+		public Joystick GetThrustJoystick() {
+			return this.thrustJoystick;
+		}
+
+		public Joystick GetFrontHeightJoystick() {
+			return this.frontHeightJoystick;
+		}
+
+		public Joystick GetBackHeightJoystick() {
+			return this.backHeightJoystick;
 		}
 
 		public void GoToRoot() {

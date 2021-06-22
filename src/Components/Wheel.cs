@@ -1,3 +1,5 @@
+using System;
+
 namespace Robot.Components {
 	public class Wheel {
 		private Motor motor = null;

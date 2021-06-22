@@ -41,10 +41,10 @@ namespace Robot.Telemetry {
 			};
 
 			float[] targetDegrees = {
-				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetTargetAngle().AsDegrees(),
-				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetTargetAngle().AsDegrees(),
-				body.GetBackBodyPart().GetLegs()[0].GetServo().GetTargetAngle().AsDegrees(),
-				body.GetBackBodyPart().GetLegs()[1].GetServo().GetTargetAngle().AsDegrees(),
+				body.GetFrontBodyPart().GetLegs()[0].GetServo().GetTargetDegree(),
+				body.GetFrontBodyPart().GetLegs()[1].GetServo().GetTargetDegree(),
+				body.GetBackBodyPart().GetLegs()[0].GetServo().GetTargetDegree(),
+				body.GetBackBodyPart().GetLegs()[1].GetServo().GetTargetDegree(),
 			};
 
 			int[] motors = {

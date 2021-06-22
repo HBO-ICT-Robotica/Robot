@@ -3,6 +3,8 @@ using System.IO.Ports;
 using System;
 using System.Collections.Generic;
 using Robot.Serial.InCommands;
+using Robot.Utility;
+using Robot.Utility.Logging;
 
 namespace Robot.Serial {
 	public partial class TeensyInterface : IHardwareInterface {
@@ -18,6 +20,8 @@ namespace Robot.Serial {
 		private int nextIncomingByteIndex = default;
 
 		private Dictionary<byte, InCommand> commands = null;
+
+		private bool resetting = false;
 
 		public TeensyInterface(string portName, int baudRate) {
 			this.serialPort = new SerialPort();
@@ -35,14 +39,14 @@ namespace Robot.Serial {
 			this.nextIncomingByteIndex = 0;
 
 			this.commands = new Dictionary<byte, InCommand>();
-			this.commands.Add(0x00, new UpdateServoPosition(this.servoPositionUpdated));
+			this.commands.Add(0x00, new UpdateServoPosition(this));
 			this.commands.Add(0x01, new ReceiveJoystickPosition(this));
 			this.commands.Add(0x02, new UpdateLoadCellValue(this));
 			this.commands.Add(0x03, new ShutdownCommand(this));
 			this.commands.Add(0x04, new ModusCommand(this));
 			this.commands.Add(0x05, new DCMotorsCommand(this));
 			this.commands.Add(0x06, new ServoCommand(this));
-			//this.commands.Add(0x02, new RemoteTimeout(this.remoteTimeoutEvent));
+			this.commands.Add(0x07, new RemoteTimeout(this));
 		}
 
 		public void Open() {
@@ -53,8 +57,7 @@ namespace Robot.Serial {
 
 			this.serialPort.DataReceived += OnDataReceived;
 
-			var handshake = new byte[] { 0xFF };
-			this.serialPort.Write(handshake, 0, handshake.Length);
+			this.Reset();
 		}
 
 		public void Close() {
@@ -66,10 +69,42 @@ namespace Robot.Serial {
 			this.serialPort.Close();
 		}
 
+		public void Reset() {
+			ServiceLocator.Get<ILogger>().LogDebug("Resetting Teensy");
+
+			var reset = new byte[] { 0x06 };
+			this.WriteBytes(reset);
+
+			this.resetting = true;
+		}
+
+		public bool IsReady() {
+			return !this.resetting;
+		}
+
 		private void OnDataReceived(object sender, SerialDataReceivedEventArgs e) {
+			if (resetting) {
+				while (this.serialPort.BytesToRead > 0) {
+					var data = (byte)this.serialPort.ReadByte();
+
+					if (data == 0xFF) {
+						ServiceLocator.Get<ILogger>().LogDebug("Received handshake");
+
+						var handshake = new byte[] { 0xFF };
+						this.WriteBytes(handshake);
+
+						break;
+					} else {
+						ServiceLocator.Get<ILogger>().LogDebug("Incorrect handshake");
+					}
+				}
+
+				this.resetting = false;
+				return;
+			}
+
 			while (this.serialPort.BytesToRead > 0) {
 				var data = (byte)this.serialPort.ReadByte();
-				Console.WriteLine(data);
 
 				if (this.currentParsingCommand == null) {
 					if (!this.commands.TryGetValue(data, out var command)) {
@@ -77,7 +112,6 @@ namespace Robot.Serial {
 						continue;
 					} else {
 						this.currentParsingCommand = command;
-						Console.WriteLine(this.currentParsingCommand);
 					}
 				} else {
 					this.incomingBytes[this.nextIncomingByteIndex] = data;
@@ -99,6 +133,8 @@ namespace Robot.Serial {
 			// }
 
 			this.serialPort.Write(buffer, 0, buffer.Length);
+
+			Thread.Sleep(7);
 		}
 
 		public void SetServoTargetDegree(byte servoId, ushort position) {
@@ -149,12 +185,26 @@ namespace Robot.Serial {
 			});
 		}
 
+		public void SendWeight(int weight) {
+			this.WriteBytes(new byte[] {
+				0x8
+			});
+		}
+
+		public void InvokeServoPositionUpdated(byte id, ushort position) {
+			this.servoPositionUpdated?.Invoke(id, position);
+		}
+
 		public void InvokeJoystickValueReceived(byte id, byte value) {
 			this.joystickValueReceived?.Invoke(id, value);
 		}
 
 		public void InvokeLoadCellValueUpdated(int value) {
 			this.loadCellValueUpdated?.Invoke(value);
+		}
+
+		public void InvokeRemoteTimeout() {
+			this.remoteTimeoutEvent?.Invoke();
 		}
 	}
 }

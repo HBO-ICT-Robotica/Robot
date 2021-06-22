@@ -1,17 +1,16 @@
 namespace Robot.Serial.InCommands {
 	public class UpdateServoPosition : InCommand {
-		private ServoPositionUpdatedHandler servoPositionUpdated = null;
+		private IHardwareInterface hardwareInterface = null;
 
-		public UpdateServoPosition(ServoPositionUpdatedHandler servoPositionUpdated) : base(3) {
-			this.servoPositionUpdated = servoPositionUpdated;
+		public UpdateServoPosition(IHardwareInterface hardwareInterface) : base(3) {
+			this.hardwareInterface = hardwareInterface;
 		}
 
 		public override void Execute(byte[] incomingBytes) {
 			var id = incomingBytes[0];
 			var position = (ushort)((incomingBytes[2] << 8) + incomingBytes[1]);
 
-			this.servoPositionUpdated?.Invoke(id, position);
+			this.hardwareInterface.InvokeServoPositionUpdated(id, position);
 		}
-
 	}
 }
